@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+
+# Entornos virtuales
+venv/
+env/
+.venv/
+env_federado_tff/
+
+# Variables y secretos
+.env
+.env.*
+*.pem
+*.key
+
+# VS Code / IDE
+.vscode/*
+!.vscode/settings.json
+.idea/
+
+# Datos
+data/raw/
+data/processed/
+datasets/
+
+# Logs
+logs/
+*.log
+
+# Modelos y checkpoints
+*.h5
+*.keras
+*.ckpt
+*.pt
+*.pth
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Archivos temporales / errores
+core
+core.*
+*.tmp
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
