@@ -1,0 +1,50 @@
+.
+├── .gitignore
+├── README.md
+├── data
+│   ├── processed
+│   │   └── unsw_nb15
+│   │       ├── metadata.json
+│   │       ├── preprocessor.joblib
+│   │       ├── test.npz
+│   │       └── train.npz
+│   └── raw
+│       └── unsw_nb15
+│           ├── NUSW-NB15_features.csv
+│           ├── UNSW_NB15_testing-set.csv
+│           └── UNSW_NB15_training-set.csv
+├── estructura_proyecto.txt
+├── logs
+├── notebooks
+├── practica
+│   ├── basico_tf.py
+│   ├── ejercicio_1.py
+│   └── prueba_tff.py
+├── requirements
+│   ├── requirements-lock.txt
+│   └── requirements_tff_cpu.txt
+├── src
+│   ├── data
+│   │   ├── inspect_unsw.py
+│   │   ├── preprocess_unsw.py
+│   │   └── processed
+│   │       └── unsw_nb15
+│   │           ├── models
+│   │           │   └── centralized
+│   │           └── results
+│   │               └── centralized
+│   ├── federated
+│   ├── models
+│   │   ├── centralized
+│   │   │   └── unsw_nb15_baseline.keras
+│   │   └── train_centralized.py
+│   ├── privacy
+│   ├── results
+│   │   └── centralized
+│   │       ├── metrics.json
+│   │       ├── predictions.csv
+│   │       └── training_history.csv
+│   └── utils
+└── tests
+
+25 directories, 22 files
