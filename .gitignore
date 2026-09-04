@@ -49,3 +49,12 @@ core.*
 # Sistema operativo
 .DS_Store
 Thumbs.db
+
+# Excepciones para entregables formales
+!logs/environment_verification.log
+!logs/client_data_verification.log
+!logs/server_verification.log
+!logs/federated_round.log
+!logs/federated_training.log
+!logs/data_locality_verification.log
+!logs/re1_3_validation.log
