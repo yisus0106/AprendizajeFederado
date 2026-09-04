@@ -1,0 +1,16 @@
+=== VERIFICACION DE LOCALIDAD DE DATOS ===
+Clientes verificados: 2
+client_01: 12 ejemplos almacenados localmente
+client_02: 12 ejemplos almacenados localmente
+
+Firma federada del proceso:
+(<state=<global_model_weights=<trainable=<float32[2,1],float32[1]>,non_trainable=<>>,distributor=<>,client_work=<learning_rate=float32>,aggregator=<value_sum_process=<>,weight_sum_process=<>>,finalizer=<learning_rate=float32>>@SERVER,client_data={<float32[?,2],float32[?,1]>*}@CLIENTS> -> <state=<global_model_weights=<trainable=<float32[2,1],float32[1]>,non_trainable=<>>,distributor=<>,client_work=<learning_rate=float32>,aggregator=<value_sum_process=<>,weight_sum_process=<>>,finalizer=<learning_rate=float32>>@SERVER,metrics=<distributor=<>,client_work=<train=<accuracy=float32,loss=float32,num_examples=int64,num_batches=int64>>,aggregator=<mean_value=<>,mean_weight=<>>,finalizer=<update_non_finite=int32>>@SERVER>)
+
+Ubicacion del estado global: SERVER - OK
+Ubicacion de datos de entrenamiento: CLIENTS - OK
+
+Datos crudos enviados al modulo servidor:
+features: NO
+labels: NO
+Casos de centralizacion detectados: 0
+Estado: LOCALIDAD DE DATOS FEDERADOS VERIFICADA

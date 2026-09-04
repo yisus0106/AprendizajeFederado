@@ -28,8 +28,7 @@ data/processed/
 datasets/
 
 # Logs
-logs/
-*.log
+logs/*
 
 # Modelos y checkpoints
 *.h5

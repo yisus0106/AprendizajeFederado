@@ -1,0 +1,92 @@
+============================================
+ VALIDACION COMPLETA DEL RE1.3
+ Prototipo de aprendizaje federado
+============================================
+
+[1/6] Verificacion del entorno
+=== VERIFICACION DEL ENTORNO FEDERADO ===
+Python: 3.11.15
+Sistema: Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.35
+TensorFlow: 2.14.1
+TensorFlow Federated: 0.87.0
+NumPy: 1.25.2
+SciPy: 1.9.3
+Estado: ENTORNO OPERATIVO
+
+[2/6] Verificacion de clientes federados
+=== PRUEBA DE CLIENTES FEDERADOS ===
+Clientes creados: 2
+client_01: 12 ejemplos locales - OK
+client_02: 12 ejemplos locales - OK
+Entrada inválida rechazada correctamente.
+Error controlado: invalid_client: features y labels deben tener la misma cantidad de registros.
+Estado: CLIENTES LOCALES OPERATIVOS
+
+[3/6] Verificacion del servidor y FedAvg
+=== PRUEBA DEL SERVIDOR FEDERADO ===
+Proceso FedAvg construido correctamente.
+Estado global inicializado correctamente.
+Variables entrenables del modelo global: 2
+Parametro global 1: shape=(2, 1) - OK
+Parametro global 2: shape=(1,) - OK
+Estado: SERVIDOR Y FEDAVG OPERATIVOS
+
+[4/6] Verificacion de una ronda federada
+=== PRUEBA DE UNA RONDA FEDERADA ===
+Clientes participantes: 2
+client_01: 12 ejemplos locales
+client_02: 12 ejemplos locales
+Parametro 1: actualizado=True
+Parametro 2: actualizado=True
+Parametros modificados: 2/2
+Metricas de la ronda:
+OrderedDict([('distributor', ()), ('client_work', OrderedDict([('train', OrderedDict([('accuracy', 0.7083333), ('loss', 0.7095315), ('num_examples', 24), ('num_batches', 6)]))])), ('aggregator', OrderedDict([('mean_value', ()), ('mean_weight', ())])), ('finalizer', OrderedDict([('update_non_finite', 0)]))])
+Ronda federada completada correctamente.
+Estado: INTEGRACION FEDERADA OPERATIVA
+
+[5/6] Verificacion de 5 rondas federadas
+=== PRUEBA DE ENTRENAMIENTO FEDERADO ===
+Clientes participantes: 2
+client_01: 12 ejemplos locales
+client_02: 12 ejemplos locales
+Rondas requeridas: 5
+Rondas completadas: 5
+Ronda 1: loss=0.414934, accuracy=0.916667, num_examples=24, parametros_actualizados=2
+Ronda 2: loss=0.404250, accuracy=0.916667, num_examples=24, parametros_actualizados=2
+Ronda 3: loss=0.394253, accuracy=0.958333, num_examples=24, parametros_actualizados=2
+Ronda 4: loss=0.384879, accuracy=0.958333, num_examples=24, parametros_actualizados=2
+Ronda 5: loss=0.376074, accuracy=1.000000, num_examples=24, parametros_actualizados=2
+Las 5 rondas produjeron una actualizacion del modelo global.
+Estado: ENTRENAMIENTO FEDERADO OPERATIVO
+
+[6/6] Verificacion de localidad de datos
+=== VERIFICACION DE LOCALIDAD LOGICA DE DATOS ===
+Clientes verificados: 2
+client_01: 12 ejemplos locales | X=(12, 2) | y=(12, 1)
+client_02: 12 ejemplos locales | X=(12, 2) | y=(12, 1)
+
+Separacion de particiones:
+Ejemplos compartidos entre clientes: 0 - OK
+Ejemplos unicos totales: 24 - OK
+Memoria compartida en features: NO - OK
+Memoria compartida en labels: NO - OK
+
+Firma federada del proceso:
+(<state=<global_model_weights=<trainable=<float32[2,1],float32[1]>,non_trainable=<>>,distributor=<>,client_work=<learning_rate=float32>,aggregator=<value_sum_process=<>,weight_sum_process=<>>,finalizer=<learning_rate=float32>>@SERVER,client_data={<float32[?,2],float32[?,1]>*}@CLIENTS> -> <state=<global_model_weights=<trainable=<float32[2,1],float32[1]>,non_trainable=<>>,distributor=<>,client_work=<learning_rate=float32>,aggregator=<value_sum_process=<>,weight_sum_process=<>>,finalizer=<learning_rate=float32>>@SERVER,metrics=<distributor=<>,client_work=<train=<accuracy=float32,loss=float32,num_examples=int64,num_batches=int64>>,aggregator=<mean_value=<>,mean_weight=<>>,finalizer=<update_non_finite=int32>>@SERVER>)
+
+Semantica federada:
+Estado global ubicado en SERVER - OK
+Datos de entrenamiento ubicados en CLIENTS - OK
+
+Resumen:
+Clientes independientes: 2
+Ejemplos totales: 24
+Ejemplos compartidos: 0
+Estado global: SERVER
+Datos de entrenamiento: CLIENTS
+
+Estado: LOCALIDAD LOGICA DE DATOS FEDERADOS VERIFICADA
+
+============================================
+ RE1.3 VALIDADO CORRECTAMENTE
+============================================

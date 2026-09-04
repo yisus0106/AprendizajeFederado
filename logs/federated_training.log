@@ -1,0 +1,13 @@
+=== PRUEBA DE ENTRENAMIENTO FEDERADO ===
+Clientes participantes: 2
+client_01: 12 ejemplos locales
+client_02: 12 ejemplos locales
+Rondas requeridas: 5
+Rondas completadas: 5
+Ronda 1: loss=0.658689, accuracy=0.791667, num_examples=24, parametros_actualizados=2
+Ronda 2: loss=0.625573, accuracy=0.875000, num_examples=24, parametros_actualizados=2
+Ronda 3: loss=0.596100, accuracy=0.916667, num_examples=24, parametros_actualizados=2
+Ronda 4: loss=0.569778, accuracy=0.958333, num_examples=24, parametros_actualizados=2
+Ronda 5: loss=0.546171, accuracy=1.000000, num_examples=24, parametros_actualizados=2
+Las 5 rondas produjeron una actualizacion del modelo global.
+Estado: ENTRENAMIENTO FEDERADO OPERATIVO

@@ -1,0 +1,7 @@
+=== PRUEBA DE CLIENTES FEDERADOS ===
+Clientes creados: 2
+client_01: 12 ejemplos locales - OK
+client_02: 12 ejemplos locales - OK
+Entrada inválida rechazada correctamente.
+Error controlado: invalid_client: features y labels deben tener la misma cantidad de registros.
+Estado: CLIENTES LOCALES OPERATIVOS

@@ -1,0 +1,7 @@
+=== PRUEBA DEL SERVIDOR FEDERADO ===
+Proceso FedAvg construido correctamente.
+Estado global inicializado correctamente.
+Variables entrenables del modelo global: 2
+Parametro global 1: shape=(2, 1) - OK
+Parametro global 2: shape=(1,) - OK
+Estado: SERVIDOR Y FEDAVG OPERATIVOS

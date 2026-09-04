@@ -1,0 +1,11 @@
+=== PRUEBA DE UNA RONDA FEDERADA ===
+Clientes participantes: 2
+client_01: 12 ejemplos locales
+client_02: 12 ejemplos locales
+Parametro 1: actualizado=True
+Parametro 2: actualizado=True
+Parametros modificados: 2/2
+Metricas de la ronda:
+OrderedDict([('distributor', ()), ('client_work', OrderedDict([('train', OrderedDict([('accuracy', 0.9166667), ('loss', 0.4699109), ('num_examples', 24), ('num_batches', 6)]))])), ('aggregator', OrderedDict([('mean_value', ()), ('mean_weight', ())])), ('finalizer', OrderedDict([('update_non_finite', 0)]))])
+Ronda federada completada correctamente.
+Estado: INTEGRACION FEDERADA OPERATIVA

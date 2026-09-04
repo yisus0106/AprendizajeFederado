@@ -1,0 +1,8 @@
+=== VERIFICACION DEL ENTORNO FEDERADO ===
+Python: 3.11.15
+Sistema: Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.35
+TensorFlow: 2.14.1
+TensorFlow Federated: 0.87.0
+NumPy: 1.25.2
+SciPy: 1.9.3
+Estado: ENTORNO OPERATIVO
