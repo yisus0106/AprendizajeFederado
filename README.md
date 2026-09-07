@@ -250,7 +250,7 @@ Contiene documentación técnica específica de los resultados implementados.
 ### 1. Clonar el repositorio
 
 ```bash
-git clone <URL_DEL_REPOSITORIO>
+git clone https://github.com/yisus0106/AprendizajeFederado.git
 cd AprendizajeFederado
 ```
 
