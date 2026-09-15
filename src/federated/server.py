@@ -37,6 +37,7 @@ def build_federated_process(
             model_fn=model_fn, # Modelo que entrenaran los clientes
             client_optimizer_fn=client_optimizer, # cada cliente usara este optimizador para actualizar sus pesos locales
             server_optimizer_fn=server_optimizer, # el servidor usara este optimizador para actualizar los pesos globales agregados
+            client_weighting=tff.learning.ClientWeighting.NUM_EXAMPLES # FedAvg ponderará la actualización de cada cliente según la cantidad de ejemplos utilizados en su entrenamiento local.
         )
     )
 

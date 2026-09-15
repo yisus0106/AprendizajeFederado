@@ -116,6 +116,8 @@ def execute_federated_training(
     process = build_federated_process()
 
     state = process.initialize()
+    
+    initial_weights = process.get_model_weights(state)
 
     partitions, federated_datasets = prepare_federated_clients(
         num_clients=num_clients,
@@ -184,6 +186,7 @@ def execute_federated_training(
     return {
         "process": process,
         "partitions": partitions,
+        "initial_weights": initial_weights,
         "final_state": state,
         "final_weights": final_weights,
         "history": history,

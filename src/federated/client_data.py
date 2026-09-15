@@ -114,6 +114,13 @@ def create_synthetic_client_partitions(
     Genera datos sintéticos únicamente para validar
     funcionalmente el mecanismo federado de RE1.3.
 
+    samples_per_client puede ser:
+    - Un entero: todos los clientes reciben la misma cantidad.
+      Ejemplo: 12 -> [12, 12]
+    - Una lista o tupla: cada cliente puede recibir una
+      cantidad diferente.
+      Ejemplo: [80, 20]
+    
     No corresponde al dataset UNSW-NB15 utilizado en OE2.
     """
 
@@ -121,18 +128,67 @@ def create_synthetic_client_partitions(
         raise ValueError(
             "El prototipo requiere al menos dos clientes federados."
         )
+    
+    # -----------------------------------------------------
+    # Determinar la cantidad de ejemplos de cada cliente
+    # -----------------------------------------------------
 
-    if samples_per_client <= 0:
-        raise ValueError(
-            "Cada cliente debe recibir al menos un ejemplo."
-        )
+    # isintance verifica que tipo de dato es samples_per_client, si es int o np.integer 
+    if isinstance(samples_per_client, (int, np.integer)):
+        # Si es del tipo int o np.integer es como antes una misma cantidad de ejemplos 
+        # para cada cliente
+        if samples_per_client <= 0:
+            raise ValueError(
+                "Cada cliente debe recibir al menos un ejemplo."
+            )
+
+        # Comportamiento original:
+        # todos los clientes reciben la misma cantidad.
+        client_sizes = []
+        for i in range(num_clients):
+            tamaño_entero = int(samples_per_client)
+            client_sizes.append(tamaño_entero)
+
+
+    else:
+        try:
+            client_sizes = list(samples_per_client)
+        except TypeError as error:
+            raise ValueError(
+                "samples_per_client debe ser un entero "
+                "o una colección de cantidades."
+            ) from error
+
+        if len(client_sizes) != num_clients:
+            raise ValueError(
+                "La cantidad de tamaños especificados debe "
+                "coincidir con num_clients."
+            )
+
+        if any(
+            not isinstance(size, (int, np.integer)) or size <= 0
+            for size in client_sizes
+        ):
+            raise ValueError(
+                "Cada cliente debe recibir una cantidad "
+                "entera positiva de ejemplos."
+            )
+        # Convierte cada dato dentro de client_sizes a entero
+        client_sizes = [
+            int(size)
+            for size in client_sizes
+        ]
+    
+    # -----------------------------------------------------
+    # Generación reproducible de datos
+    # -----------------------------------------------------
     # Se utiliza un generador de números aleatorios de NumPy para garantizar
     # la reproducibilidad de los datos sintéticos generados. 
     # La semilla proporcionada asegura que cada ejecución del código produzca 
     # los mismos datos para los clientes.
     rng = np.random.default_rng(seed)
 
-    total_samples = num_clients * samples_per_client
+    total_samples = sum(client_sizes)
 
     features = rng.normal(
         loc=0.0, # Media de la distribución normal, centrada en 0.
@@ -147,11 +203,18 @@ def create_synthetic_client_partitions(
     # Si la suma ponderada es mayor que cero, la etiqueta es 1; de lo contrario, es 0.
     labels = (scores > 0).astype(np.float32).reshape(-1, 1)
 
+    
+    # -----------------------------------------------------
+    # Construcción de las particiones locales
+    # -----------------------------------------------------
+    
     partitions = {}
-
-    for index in range(num_clients):
-        start = index * samples_per_client
-        end = start + samples_per_client
+    
+    start = 0
+    
+    for index,client_size in enumerate(client_sizes):
+        
+        end = start + client_size
 
         client_id = f"client_{index + 1:02d}"
 
@@ -160,5 +223,7 @@ def create_synthetic_client_partitions(
             features=features[start:end],
             labels=labels[start:end],
         )
+        
+        start = end
 
     return partitions
