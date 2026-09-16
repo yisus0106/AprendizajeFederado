@@ -45,7 +45,7 @@ SEED = 42
 
 
 OUTPUT_DIR = Path(
-    "src/results/federated"
+    "results/re1.3"
 )
 
 

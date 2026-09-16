@@ -1,90 +1,84 @@
 .
 ├── README.md
+├── artifacts
+│   ├── models
+│   │   └── centralized
+│   │       └── unsw_nb15_baseline.keras
+│   ├── predictions
+│   │   └── centralized_predictions.csv
+│   └── runs
 ├── data
-│   ├── processed
-│   │   └── unsw_nb15
-│   │       ├── metadata.json
-│   │       ├── preprocessor.joblib
-│   │       ├── test.npz
-│   │       └── train.npz
-│   └── raw
-│       └── unsw_nb15
-│           ├── NUSW-NB15_features.csv
-│           ├── UNSW_NB15_testing-set.csv
-│           └── UNSW_NB15_training-set.csv
+│   ├── processed
+│   │   └── unsw_nb15
+│   │       ├── metadata.json
+│   │       ├── preprocessor.joblib
+│   │       ├── test.npz
+│   │       ├── train.npz
+│   │       └── validation.npz
+│   └── raw
+│       └── unsw_nb15
+│           ├── NUSW-NB15_features.csv
+│           ├── UNSW_NB15_testing-set.csv
+│           └── UNSW_NB15_training-set.csv
 ├── docs
-│   └── re1_3_prototipo_federado.md
+│   └── re1_3_prototipo_federado.md
 ├── estructura_proyecto.txt
 ├── logs
-│   ├── client_data_verification.log
-│   ├── data_locality_verification.log
-│   ├── environment_verification.log
-│   ├── federated_round.log
-│   ├── federated_training.log
-│   ├── re1_3_validation.log
-│   └── server_verification.log
+│   ├── client_data_verification.log
+│   ├── data_locality_verification.log
+│   ├── environment_verification.log
+│   ├── federated_round.log
+│   ├── federated_training.log
+│   ├── re1_3_validation.log
+│   └── server_verification.log
 ├── notebooks
 ├── practica
-│   ├── basico_tf.py
-│   ├── ejercicio_1.py
-│   └── prueba_tff.py
+│   ├── basico_tf.py
+│   ├── ejercicio_1.py
+│   └── prueba_tff.py
 ├── requirements
-│   ├── requirements-lock.txt
-│   └── requirements_tff_cpu.txt
+│   ├── requirements-lock.txt
+│   └── requirements_tff_cpu.txt
+├── results
+│   ├── re1_3
+│   │   ├── fedavg_training_curves.png
+│   │   └── fedavg_training_history.csv
+│   └── re2
+│       └── centralized
+│           ├── metrics.json
+│           ├── training_history.csv
+│           └── tuning
+│               ├── best_config.json
+│               ├── hyperparameter_search.csv
+│               └── threshold_search.csv
 ├── scripts
-│   ├── dev_check.sh
-│   └── validate_re1_3.sh
+│   ├── dev_check.sh
+│   ├── refactorizacion.sh
+│   └── validate_re1_3.sh
 ├── src
-│   ├── __init__.py
-│   ├── __pycache__
-│   │   └── __init__.cpython-311.pyc
-│   ├── data
-│   │   ├── inspect_unsw.py
-│   │   ├── preprocess_unsw.py
-│   │   └── processed
-│   │       └── unsw_nb15
-│   │           ├── models
-│   │           │   └── centralized
-│   │           └── results
-│   │               └── centralized
-│   ├── federated
-│   │   ├── __init__.py
-│   │   ├── __pycache__
-│   │   │   ├── __init__.cpython-311.pyc
-│   │   │   ├── client_data.cpython-311.pyc
-│   │   │   ├── model.cpython-311.pyc
-│   │   │   ├── server.cpython-311.pyc
-│   │   │   └── training.cpython-311.pyc
-│   │   ├── client_data.py
-│   │   ├── model.py
-│   │   ├── server.py
-│   │   └── training.py
-│   ├── models
-│   │   ├── centralized
-│   │   │   └── unsw_nb15_baseline.keras
-│   │   └── train_centralized.py
-│   ├── privacy
-│   ├── results
-│   │   └── centralized
-│   │       ├── metrics.json
-│   │       ├── predictions.csv
-│   │       └── training_history.csv
-│   └── utils
+│   ├── __init__.py
+│   ├── data
+│   │   ├── inspect_unsw.py
+│   │   └── preprocess_unsw.py
+│   ├── federated
+│   │   ├── __init__.py
+│   │   ├── client_data.py
+│   │   ├── model.py
+│   │   ├── server.py
+│   │   └── training.py
+│   └── models
+│       ├── centralized
+│       ├── train_centralized.py
+│       └── tune_centralized.py
 └── tests
     ├── __init__.py
-    ├── __pycache__
-    │   ├── __init__.cpython-311.pyc
-    │   ├── test_client_data.cpython-311.pyc
-    │   ├── test_data_locality.cpython-311.pyc
-    │   ├── test_data_locality_2.cpython-311.pyc
-    │   ├── test_federated_round.cpython-311.pyc
-    │   ├── test_federated_training.cpython-311.pyc
-    │   └── test_server.cpython-311.pyc
     ├── test_client_data.py
     ├── test_data_locality.py
+    ├── test_fedavg_weighting.py
+    ├── test_federated_metrics.py
     ├── test_federated_round.py
     ├── test_federated_training.py
     ├── test_server.py
     └── verify_environment.py
 
-30 directories, 57 files
+27 directories, 54 files

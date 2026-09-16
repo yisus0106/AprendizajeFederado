@@ -146,47 +146,32 @@ La estructura general del repositorio es:
 
 ```text
 AprendizajeFederado/
-│
-├── README.md
-│
-├── docs/
-│   └── re1_3_prototipo_federado.md
-│
-├── data/
-│
-├── logs/
-│
-├── notebooks/
-│
-├── practica/
-│
-├── requirements/
-│   ├── requirements-lock.txt
-│   └── requirements_tff_cpu.txt
-│
-├── scripts/
-│   └── validate_re1_3.sh
-│
-├── src/
-│   ├── data/
-│   ├── federated/
-│   │   ├── client_data.py
-│   │   ├── model.py
-│   │   ├── server.py
-│   │   └── training.py
-│   │
-│   ├── models/
-│   ├── privacy/
-│   ├── results/
-│   └── utils/
-│
-└── tests/
-    ├── verify_environment.py
-    ├── test_client_data.py
-    ├── test_server.py
-    ├── test_federated_round.py
-    ├── test_federated_training.py
-    └── test_data_locality.py
+├── artifacts
+│   ├── models
+│   │   └── centralized
+│   ├── predictions
+│   └── runs
+├── data
+│   ├── processed
+│   │   └── unsw_nb15
+│   └── raw
+│       └── unsw_nb15
+├── docs
+├── logs
+├── notebooks
+├── requirements
+├── results
+│   ├── re1_3
+│   └── re2
+│       └── centralized
+│           └── tuning
+├── scripts
+├── src
+│   ├── data
+│   ├── federated
+│   └── models
+│       └── centralized
+└── tests
 ```
 
 Algunos directorios se encuentran reservados para componentes correspondientes a etapas posteriores del proyecto y serán documentados cuando formen parte de resultados formalmente implementados.

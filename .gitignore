@@ -57,3 +57,9 @@ Thumbs.db
 !logs/federated_training.log
 !logs/data_locality_verification.log
 !logs/re1_3_validation.log
+
+# Artefactos experimentales regenerables
+artifacts/
+
+# Corridas temporales de experimentos
+results/**/runs/
