@@ -18,10 +18,23 @@ from sklearn.metrics import (
 
 
 # ============================================================
-# Reproducibilidad
+# Configuración experimental
 # ============================================================
 
 SEED = 42
+
+BATCH_SIZE = 256
+MAX_EPOCHS = 20
+
+LEARNING_RATE = 0.001
+DROPOUT_RATE = 0.2
+
+CLASSIFICATION_THRESHOLD = 0.55
+
+
+# ============================================================
+# Reproducibilidad
+# ============================================================
 
 random.seed(SEED)
 np.random.seed(SEED)
@@ -34,16 +47,44 @@ tf.random.set_seed(SEED)
 
 BASE_DIR = Path(__file__).resolve().parents[2]
 
-DATA_DIR = BASE_DIR / "data" / "processed" / "unsw_nb15"
+DATA_DIR = (
+    BASE_DIR
+    / "data"
+    / "processed"
+    / "unsw_nb15"
+)
 
-RESULTS_DIR = BASE_DIR / "src" / "results" / "centralized"
-MODEL_DIR = BASE_DIR / "src" / "models" / "centralized"
+RESULTS_DIR = (
+    BASE_DIR
+    / "results"
+    / "re2"
+    / "centralized"
+)
 
-RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-MODEL_DIR.mkdir(parents=True, exist_ok=True)
+MODEL_DIR = (
+    BASE_DIR
+    / "artifacts"
+    / "models"
+    / "centralized"
+)
+
+RESULTS_DIR.mkdir(
+    parents=True,
+    exist_ok=True,
+)
+
+MODEL_DIR.mkdir(
+    parents=True,
+    exist_ok=True,
+)
 
 
 TRAIN_FILE = DATA_DIR / "train.npz"
+
+VALIDATION_FILE = (
+    DATA_DIR / "validation.npz"
+)
+
 TEST_FILE = DATA_DIR / "test.npz"
 
 
@@ -55,22 +96,72 @@ print("=" * 70)
 print("MODELO CENTRALIZADO - UNSW-NB15")
 print("=" * 70)
 
-print("\nCargando datos procesados...")
+print(
+    "\nCargando datos procesados..."
+)
 
-train_data = np.load(TRAIN_FILE)
-test_data = np.load(TEST_FILE)
+train_data = np.load(
+    TRAIN_FILE
+)
+
+validation_data = np.load(
+    VALIDATION_FILE
+)
+
+test_data = np.load(
+    TEST_FILE
+)
+
 
 X_train = train_data["X"]
 y_train = train_data["y"]
+
+X_validation = validation_data["X"]
+y_validation = validation_data["y"]
 
 X_test = test_data["X"]
 y_test = test_data["y"]
 
 
-print(f"X_train: {X_train.shape}")
-print(f"y_train: {y_train.shape}")
-print(f"X_test:  {X_test.shape}")
-print(f"y_test:  {y_test.shape}")
+print(
+    f"X_train:      {X_train.shape}"
+)
+
+print(
+    f"y_train:      {y_train.shape}"
+)
+
+print(
+    f"X_validation: {X_validation.shape}"
+)
+
+print(
+    f"y_validation: {y_validation.shape}"
+)
+
+print(
+    f"X_test:       {X_test.shape}"
+)
+
+print(
+    f"y_test:       {y_test.shape}"
+)
+
+
+# ============================================================
+# Verificación de dimensiones
+# ============================================================
+
+if (
+    X_train.shape[1]
+    != X_validation.shape[1]
+    or X_train.shape[1]
+    != X_test.shape[1]
+):
+    raise ValueError(
+        "TRAIN, VALIDATION y TEST deben tener "
+        "el mismo número de características."
+    )
 
 
 # ============================================================
@@ -80,14 +171,18 @@ print(f"y_test:  {y_test.shape}")
 input_dim = X_train.shape[1]
 
 model = tf.keras.Sequential([
-    tf.keras.layers.Input(shape=(input_dim,)),
+    tf.keras.layers.Input(
+        shape=(input_dim,)
+    ),
 
     tf.keras.layers.Dense(
         64,
         activation="relu"
     ),
 
-    tf.keras.layers.Dropout(0.2),
+    tf.keras.layers.Dropout(
+        DROPOUT_RATE
+    ),
 
     tf.keras.layers.Dense(
         32,
@@ -107,19 +202,24 @@ model = tf.keras.Sequential([
 
 model.compile(
     optimizer=tf.keras.optimizers.Adam(
-        learning_rate=0.001
+        learning_rate=LEARNING_RATE
     ),
+
     loss="binary_crossentropy",
+
     metrics=[
         tf.keras.metrics.BinaryAccuracy(
             name="accuracy"
         ),
+
         tf.keras.metrics.Precision(
             name="precision"
         ),
+
         tf.keras.metrics.Recall(
             name="recall"
         ),
+
         tf.keras.metrics.AUC(
             name="auc"
         ),
@@ -127,7 +227,10 @@ model.compile(
 )
 
 
-print("\nArquitectura del modelo:")
+print(
+    "\nArquitectura del modelo:"
+)
+
 model.summary()
 
 
@@ -135,45 +238,92 @@ model.summary()
 # Entrenamiento
 # ============================================================
 
-early_stopping = tf.keras.callbacks.EarlyStopping(
-    monitor="val_loss",
-    patience=3,
-    restore_best_weights=True
+early_stopping = (
+    tf.keras.callbacks.EarlyStopping(
+        monitor="val_loss",
+        patience=3,
+        restore_best_weights=True
+    )
 )
 
 
-print("\nIniciando entrenamiento...")
+print(
+    "\nIniciando entrenamiento..."
+)
+
 
 history = model.fit(
     X_train,
     y_train,
-    validation_split=0.20,
-    epochs=20,
-    batch_size=256,
+
+    validation_data=(
+        X_validation,
+        y_validation
+    ),
+
+    epochs=MAX_EPOCHS,
+    batch_size=BATCH_SIZE,
     shuffle=True,
+
     callbacks=[
         early_stopping
     ],
+
     verbose=1
 )
 
 
 # ============================================================
-# Evaluación
+# Información del entrenamiento
 # ============================================================
 
-print("\nEvaluando sobre TEST...")
+epochs_trained = len(
+    history.history["loss"]
+)
+
+best_epoch = (
+    int(
+        np.argmin(
+            history.history["val_loss"]
+        )
+    )
+    + 1
+)
+
+
+print(
+    f"\nEpochs ejecutados: "
+    f"{epochs_trained}"
+)
+
+print(
+    f"Mejor epoch según val_loss: "
+    f"{best_epoch}"
+)
+
+
+# ============================================================
+# Evaluación sobre TEST
+# ============================================================
+
+print(
+    "\nEvaluando sobre TEST..."
+)
+
 
 probabilities = model.predict(
     X_test,
-    batch_size=256,
+    batch_size=BATCH_SIZE,
     verbose=1
 ).ravel()
 
 
 predictions = (
-    probabilities >= 0.5
-).astype(np.int32)
+    probabilities
+    >= CLASSIFICATION_THRESHOLD
+).astype(
+    np.int32
+)
 
 
 # ============================================================
@@ -214,20 +364,54 @@ cm = confusion_matrix(
 )
 
 
-print("\n" + "=" * 70)
-print("RESULTADOS")
-print("=" * 70)
+print(
+    "\n"
+    + "=" * 70
+)
 
-print(f"Accuracy:  {accuracy:.4f}")
-print(f"Precision: {precision:.4f}")
-print(f"Recall:    {recall:.4f}")
-print(f"F1-score:  {f1:.4f}")
-print(f"ROC-AUC:   {auc:.4f}")
+print(
+    "RESULTADOS"
+)
 
-print("\nMatriz de confusión:")
-print(cm)
+print(
+    "=" * 70
+)
 
-print("\nReporte de clasificación:")
+
+print(
+    f"Accuracy:  {accuracy:.4f}"
+)
+
+print(
+    f"Precision: {precision:.4f}"
+)
+
+print(
+    f"Recall:    {recall:.4f}"
+)
+
+print(
+    f"F1-score:  {f1:.4f}"
+)
+
+print(
+    f"ROC-AUC:   {auc:.4f}"
+)
+
+
+print(
+    "\nMatriz de confusión:"
+)
+
+print(
+    cm
+)
+
+
+print(
+    "\nReporte de clasificación:"
+)
+
 print(
     classification_report(
         y_test,
@@ -243,20 +427,79 @@ print(
 
 results = {
     "dataset": "UNSW-NB15",
+
     "model": "MLP",
+
     "seed": SEED,
-    "input_features": int(input_dim),
-    "batch_size": 256,
-    "max_epochs": 20,
-    "classification_threshold": 0.5,
 
-    "accuracy": float(accuracy),
-    "precision": float(precision),
-    "recall": float(recall),
-    "f1_score": float(f1),
-    "roc_auc": float(auc),
+    "input_features": int(
+        input_dim
+    ),
 
-    "confusion_matrix": cm.tolist(),
+    "samples": {
+        "train": int(
+            len(y_train)
+        ),
+
+        "validation": int(
+            len(y_validation)
+        ),
+
+        "test": int(
+            len(y_test)
+        ),
+    },
+
+    "architecture": {
+        "hidden_layers": [
+            64,
+            32,
+        ],
+
+        "activation": "relu",
+
+        "output_activation": "sigmoid",
+
+        "dropout": DROPOUT_RATE,
+    },
+
+    "optimizer": "Adam",
+
+    "learning_rate":
+        LEARNING_RATE,
+
+    "batch_size":
+        BATCH_SIZE,
+
+    "max_epochs":
+        MAX_EPOCHS,
+
+    "epochs_trained":
+        epochs_trained,
+
+    "best_epoch":
+        best_epoch,
+
+    "classification_threshold":
+        CLASSIFICATION_THRESHOLD,
+
+    "accuracy":
+        float(accuracy),
+
+    "precision":
+        float(precision),
+
+    "recall":
+        float(recall),
+
+    "f1_score":
+        float(f1),
+
+    "roc_auc":
+        float(auc),
+
+    "confusion_matrix":
+        cm.tolist(),
 }
 
 
@@ -282,7 +525,9 @@ history_df = pd.DataFrame(
 )
 
 history_df.to_csv(
-    RESULTS_DIR / "training_history.csv",
+    RESULTS_DIR
+    / "training_history.csv",
+
     index=False
 )
 
@@ -291,14 +536,24 @@ history_df.to_csv(
 # Guardar predicciones
 # ============================================================
 
-predictions_df = pd.DataFrame({
-    "real": y_test,
-    "probability": probabilities,
-    "prediction": predictions
-})
+predictions_df = (
+    pd.DataFrame({
+        "real":
+            y_test,
+
+        "probability":
+            probabilities,
+
+        "prediction":
+            predictions,
+    })
+)
+
 
 predictions_df.to_csv(
-    RESULTS_DIR / "predictions.csv",
+    RESULTS_DIR
+    / "predictions.csv",
+
     index=False
 )
 
@@ -308,26 +563,40 @@ predictions_df.to_csv(
 # ============================================================
 
 model.save(
-    MODEL_DIR / "unsw_nb15_baseline.keras"
+    MODEL_DIR
+    / "unsw_nb15_baseline.keras"
 )
 
 
-print("\nArchivos generados:")
+# ============================================================
+# Finalización
+# ============================================================
 
 print(
-    RESULTS_DIR / "metrics.json"
-)
-
-print(
-    RESULTS_DIR / "training_history.csv"
-)
-
-print(
-    RESULTS_DIR / "predictions.csv"
+    "\nArchivos generados:"
 )
 
 print(
-    MODEL_DIR / "unsw_nb15_baseline.keras"
+    RESULTS_DIR
+    / "metrics.json"
 )
 
-print("\nEntrenamiento centralizado finalizado.")
+print(
+    RESULTS_DIR
+    / "training_history.csv"
+)
+
+print(
+    RESULTS_DIR
+    / "predictions.csv"
+)
+
+print(
+    MODEL_DIR
+    / "unsw_nb15_baseline.keras"
+)
+
+print(
+    "\nEntrenamiento centralizado "
+    "finalizado."
+)

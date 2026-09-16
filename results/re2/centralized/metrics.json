@@ -1,0 +1,42 @@
+{
+    "dataset": "UNSW-NB15",
+    "model": "MLP",
+    "seed": 42,
+    "input_features": 192,
+    "samples": {
+        "train": 140272,
+        "validation": 35069,
+        "test": 82332
+    },
+    "architecture": {
+        "hidden_layers": [
+            64,
+            32
+        ],
+        "activation": "relu",
+        "output_activation": "sigmoid",
+        "dropout": 0.2
+    },
+    "optimizer": "Adam",
+    "learning_rate": 0.001,
+    "batch_size": 256,
+    "max_epochs": 20,
+    "epochs_trained": 18,
+    "best_epoch": 15,
+    "classification_threshold": 0.55,
+    "accuracy": 0.8609046300344945,
+    "precision": 0.8142740529108382,
+    "recall": 0.9682123003617753,
+    "f1_score": 0.8845960054013745,
+    "roc_auc": 0.9749623504427397,
+    "confusion_matrix": [
+        [
+            26989,
+            10011
+        ],
+        [
+            1441,
+            43891
+        ]
+    ]
+}
