@@ -582,25 +582,17 @@ print(
     "\nArchivos generados:"
 )
 
-print(
-    RESULTS_DIR
-    / "metrics.json"
-)
+METRICS_PATH = RESULTS_DIR / "metrics.json"
+print(METRICS_PATH.relative_to(BASE_DIR))
 
-print(
-    RESULTS_DIR
-    / "training_history.csv"
-)
+TRAINING_PATH = RESULTS_DIR / "training_history.csv"
+print(TRAINING_PATH.relative_to(BASE_DIR))
 
-print(
-    PREDICTIONS_DIR
-    / "predictions.csv"
-)
+PREDICTIONS_PATH = PREDICTIONS_DIR / "predictions.csv"
+print(PREDICTIONS_PATH.relative_to(BASE_DIR))
 
-print(
-    MODEL_DIR
-    / "unsw_nb15_baseline.keras"
-)
+MODEL_PATH = MODEL_DIR / "unsw_nb15_baseline.keras"
+print(MODEL_PATH.relative_to(BASE_DIR))
 
 print(
     "\nEntrenamiento centralizado "

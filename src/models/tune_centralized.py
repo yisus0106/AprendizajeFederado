@@ -971,17 +971,11 @@ print(
     "\nArchivos generados:"
 )
 
-print(
-    RESULTS_DIR
-    / "hyperparameter_search.csv"
-)
+HYPER_PATH = RESULTS_DIR / "hyperparameter_search.csv"
+print(HYPER_PATH.relative_to(BASE_DIR))
 
-print(
-    RESULTS_DIR
-    / "threshold_search.csv"
-)
+THRESHOLD_PATH = RESULTS_DIR / "threshold_search.csv"
+print(THRESHOLD_PATH.relative_to(BASE_DIR))
 
-print(
-    RESULTS_DIR
-    / "best_config.json"
-)
+BEST_CONFIG_PATH = RESULTS_DIR / "best_config.json"
+print(BEST_CONFIG_PATH.relative_to(BASE_DIR))

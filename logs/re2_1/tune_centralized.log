@@ -102,6 +102,6 @@ F1-score:  0.9607
 FPR:       0.0938
 
 Archivos generados:
-/home/yisus/proyectos/AprendizajeFederado/results/re2/centralized/tuning/hyperparameter_search.csv
-/home/yisus/proyectos/AprendizajeFederado/results/re2/centralized/tuning/threshold_search.csv
-/home/yisus/proyectos/AprendizajeFederado/results/re2/centralized/tuning/best_config.json
+results/re2/centralized/tuning/hyperparameter_search.csv
+results/re2/centralized/tuning/threshold_search.csv
+results/re2/centralized/tuning/best_config.json
