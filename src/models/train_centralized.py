@@ -61,6 +61,12 @@ RESULTS_DIR = (
     / "centralized"
 )
 
+PREDICTIONS_DIR = (
+    BASE_DIR
+    / "artifacts"
+    / "predictions"
+)
+
 MODEL_DIR = (
     BASE_DIR
     / "artifacts"
@@ -551,8 +557,8 @@ predictions_df = (
 
 
 predictions_df.to_csv(
-    RESULTS_DIR
-    / "predictions.csv",
+    PREDICTIONS_DIR
+    / "centralized_predictions.csv",
 
     index=False
 )
@@ -587,7 +593,7 @@ print(
 )
 
 print(
-    RESULTS_DIR
+    PREDICTIONS_DIR
     / "predictions.csv"
 )
 
