@@ -2,8 +2,14 @@
     "dataset": "UNSW-NB15",
     "seed": 42,
     "selection_dataset": "validation",
-    "selection_metric": "f1_score",
-    "minimum_recall": 0.8,
+    "model_selection_metric": "f1_score",
+    "threshold_selection": {
+        "minimum_recall": 0.8,
+        "primary_metric": "f1_score",
+        "f1_tolerance": 0.001,
+        "secondary_metric": "false_positive_rate",
+        "secondary_objective": "minimize"
+    },
     "hidden_layers": [
         64,
         32
@@ -13,14 +19,14 @@
     "batch_size": 256,
     "max_epochs": 20,
     "patience": 3,
-    "classification_threshold": 0.45,
+    "classification_threshold": 0.55,
     "validation_metrics": {
-        "accuracy": 0.9457925803416123,
-        "precision": 0.9405583186266645,
-        "recall": 0.9824458502660355,
-        "f1_score": 0.9610458802073728,
+        "accuracy": 0.9463058541732015,
+        "precision": 0.9563683161740285,
+        "recall": 0.9651430726046336,
+        "f1_score": 0.9607356590278792,
         "roc_auc": 0.990187135660121,
-        "specificity": 0.8676785714285714,
-        "false_positive_rate": 0.13232142857142856
+        "specificity": 0.9061607142857143,
+        "false_positive_rate": 0.09383928571428571
     }
 }

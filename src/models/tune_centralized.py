@@ -28,7 +28,7 @@ PATIENCE = 3
 
 BASE_THRESHOLD = 0.50
 MIN_RECALL = 0.80
-
+F1_TOLERANCE = 0.001
 
 # ============================================================
 # Configuraciones a comparar
@@ -718,23 +718,44 @@ eligible_thresholds = threshold_df[
 ].copy()
 
 
-eligible_thresholds = (
-    eligible_thresholds.sort_values(
-        by=[
-            "f1_score",
-            "false_positive_rate",
-        ],
+eligible_thresholds = threshold_df[
+    threshold_df["recall"] >= MIN_RECALL
+].copy()
 
+
+# ============================================================
+# Selección de thresholds con F1 prácticamente equivalente
+# ============================================================
+
+max_f1 = eligible_thresholds[
+    "f1_score"
+].max()
+
+
+near_best_thresholds = eligible_thresholds[
+    eligible_thresholds["f1_score"]
+    >= (max_f1 - F1_TOLERANCE)
+].copy()
+
+
+# Entre los thresholds con F1 prácticamente equivalente,
+# se selecciona el que tenga menor tasa de falsos positivos.
+near_best_thresholds = (
+    near_best_thresholds.sort_values(
+        by=[
+            "false_positive_rate",
+            "f1_score",
+        ],
         ascending=[
-            False,
             True,
+            False,
         ],
     )
 )
 
 
 best_threshold_row = (
-    eligible_thresholds.iloc[0]
+    near_best_thresholds.iloc[0]
 )
 
 
@@ -757,11 +778,25 @@ final_configuration = {
     "selection_dataset":
         "validation",
 
-    "selection_metric":
+    "model_selection_metric":
         "f1_score",
 
-    "minimum_recall":
-        MIN_RECALL,
+    "threshold_selection": {
+        "minimum_recall":
+            MIN_RECALL,
+
+        "primary_metric":
+            "f1_score",
+
+        "f1_tolerance":
+            F1_TOLERANCE,
+
+        "secondary_metric":
+            "false_positive_rate",
+
+        "secondary_objective":
+            "minimize",
+    },
 
     "hidden_layers":
         best_configuration[
@@ -873,6 +908,32 @@ print(
 
 print(
     "=" * 70
+)
+
+print(
+    f"F1 máximo observado: "
+    f"{max_f1:.6f}"
+)
+
+print(
+    f"Tolerancia de F1: "
+    f"{F1_TOLERANCE:.4f}"
+)
+
+print(
+    "\nThresholds considerados "
+    "prácticamente equivalentes:"
+)
+
+print(
+    near_best_thresholds[
+        [
+            "threshold",
+            "f1_score",
+            "recall",
+            "false_positive_rate",
+        ]
+    ].to_string(index=False)
 )
 
 print(
