@@ -27,9 +27,6 @@ data/raw/
 data/processed/
 datasets/
 
-# Logs
-logs/*
-
 # Modelos y checkpoints
 *.h5
 *.keras
@@ -50,13 +47,15 @@ core.*
 Thumbs.db
 
 # Excepciones para entregables formales
-!logs/environment_verification.log
-!logs/client_data_verification.log
-!logs/server_verification.log
-!logs/federated_round.log
-!logs/federated_training.log
-!logs/data_locality_verification.log
-!logs/re1_3_validation.log
+!logs/re1_3/environment_verification.log
+!logs/re1_3/client_data_verification.log
+!logs/re1_3/server_verification.log
+!logs/re1_3/federated_round.log
+!logs/re1_3/federated_training.log
+!logs/re1_3/data_locality_verification.log
+!logs/re1_3/re1_3_validation.log
+!logs/re2_1/train_centralized.log
+!logs/re2_1/tune_centralized.log
 
 # Artefactos experimentales regenerables
 artifacts/

@@ -1,0 +1,107 @@
+======================================================================
+AJUSTE DE HIPERPARÁMETROS - UNSW-NB15
+======================================================================
+
+X_train:      (140272, 192)
+X_validation: (35069, 192)
+
+TEST no será utilizado durante el ajuste.
+
+======================================================================
+Configuración C0
+======================================================================
+Capas: [64, 32]
+Dropout: 0.2
+Learning rate: 0.001
+Accuracy:  0.9462
+Precision: 0.9494
+Recall:    0.9729
+F1-score:  0.9610
+FPR:       0.1106
+AUC:       0.9902
+Mejor epoch: 15
+
+======================================================================
+Configuración C1
+======================================================================
+Capas: [32, 16]
+Dropout: 0.2
+Learning rate: 0.001
+Accuracy:  0.9460
+Precision: 0.9510
+Recall:    0.9707
+F1-score:  0.9608
+FPR:       0.1065
+AUC:       0.9896
+Mejor epoch: 19
+
+======================================================================
+Configuración C2
+======================================================================
+Capas: [64, 32]
+Dropout: 0.3
+Learning rate: 0.001
+Accuracy:  0.9462
+Precision: 0.9489
+Recall:    0.9733
+F1-score:  0.9610
+FPR:       0.1117
+AUC:       0.9901
+Mejor epoch: 15
+
+======================================================================
+Configuración C3
+======================================================================
+Capas: [64, 32]
+Dropout: 0.2
+Learning rate: 0.0005
+Accuracy:  0.9453
+Precision: 0.9519
+Recall:    0.9685
+F1-score:  0.9601
+FPR:       0.1044
+AUC:       0.9897
+Mejor epoch: 19
+
+======================================================================
+Configuración C4
+======================================================================
+Capas: [128, 64]
+Dropout: 0.2
+Learning rate: 0.001
+Accuracy:  0.9463
+Precision: 0.9556
+Recall:    0.9659
+F1-score:  0.9608
+FPR:       0.0955
+AUC:       0.9902
+Mejor epoch: 19
+
+======================================================================
+MEJOR CONFIGURACIÓN
+======================================================================
+{'id': 'C0', 'hidden_layers': [64, 32], 'dropout': 0.2, 'learning_rate': 0.001}
+F1 máximo observado: 0.961046
+Tolerancia de F1: 0.0010
+
+Thresholds considerados prácticamente equivalentes:
+ threshold  f1_score   recall  false_positive_rate
+      0.55  0.960736 0.965143             0.093839
+      0.50  0.960998 0.972936             0.110625
+      0.45  0.961046 0.982446             0.132321
+      0.40  0.960164 0.991621             0.157500
+
+======================================================================
+THRESHOLD SELECCIONADO
+======================================================================
+Threshold: 0.55
+Accuracy:  0.9463
+Precision: 0.9564
+Recall:    0.9651
+F1-score:  0.9607
+FPR:       0.0938
+
+Archivos generados:
+/home/yisus/proyectos/AprendizajeFederado/results/re2/centralized/tuning/hyperparameter_search.csv
+/home/yisus/proyectos/AprendizajeFederado/results/re2/centralized/tuning/threshold_search.csv
+/home/yisus/proyectos/AprendizajeFederado/results/re2/centralized/tuning/best_config.json

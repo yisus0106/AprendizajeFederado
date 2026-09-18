@@ -898,19 +898,6 @@ with open(
 # ============================================================
 
 print(
-    "\n"
-    + "=" * 70
-)
-
-print(
-    "THRESHOLD SELECCIONADO"
-)
-
-print(
-    "=" * 70
-)
-
-print(
     f"F1 máximo observado: "
     f"{max_f1:.6f}"
 )
@@ -934,6 +921,19 @@ print(
             "false_positive_rate",
         ]
     ].to_string(index=False)
+)
+
+print(
+    "\n"
+    + "=" * 70
+)
+
+print(
+    "THRESHOLD SELECCIONADO"
+)
+
+print(
+    "=" * 70
 )
 
 print(
