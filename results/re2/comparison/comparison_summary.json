@@ -1,0 +1,41 @@
+{
+    "dataset": "UNSW-NB15",
+    "test_samples": 82332,
+    "classification_threshold": 0.55,
+    "federated_configuration": {
+        "num_clients": 2,
+        "num_rounds": 5,
+        "aggregation": "FedAvg"
+    },
+    "centralized_confusion_matrix": [
+        [
+            24554,
+            12446
+        ],
+        [
+            668,
+            44664
+        ]
+    ],
+    "federated_confusion_matrix": [
+        [
+            22672,
+            14328
+        ],
+        [
+            431,
+            44901
+        ]
+    ],
+    "false_negatives_avoided": 237,
+    "additional_false_positives": 1882,
+    "findings": [
+        "El modelo federado incrementó el recall en 0.52 puntos porcentuales.",
+        "El modelo federado evitó 237 falsos negativos respecto al modelo centralizado.",
+        "El modelo federado produjo 1882 falsos positivos adicionales."
+    ],
+    "limitations": [
+        "El experimento utiliza dos clientes simulados dentro de un entorno académico controlado.",
+        "Las particiones son estratificadas y no representan todavía un escenario non-IID."
+    ]
+}
