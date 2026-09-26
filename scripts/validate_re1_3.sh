@@ -13,23 +13,23 @@ python tests/verify_environment.py
 echo
 
 echo "[2/6] Verificacion de clientes federados"
-python -m tests.test_client_data
+python -m tests.test_federated_re1_3.test_client_data
 echo
 
 echo "[3/6] Verificacion del servidor y FedAvg"
-python -m tests.test_server
+python -m tests.test_federated_re1_3.test_server
 echo
 
 echo "[4/6] Verificacion de una ronda federada"
-python -m tests.test_federated_round
+python -m tests.test_federated_re1_3.test_federated_round
 echo
 
 echo "[5/6] Verificacion de 5 rondas federadas"
-python -m tests.test_federated_training
+python -m tests.test_federated_re1_3.test_federated_training
 echo
 
 echo "[6/6] Verificacion de localidad de datos"
-python -m tests.test_data_locality
+python -m tests.test_federated_re1_3.test_data_locality
 echo
 
 echo "============================================"

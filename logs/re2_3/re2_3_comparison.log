@@ -1,0 +1,14 @@
+=== COMPARACIÓN CENTRALIZADO VS. FEDERADO ===
+
+metric_name  centralized  federated  difference_percentage_points
+   Accuracy     0.840718   0.820738                     -1.998008
+  Precision     0.782070   0.758091                     -2.397821
+     Recall     0.985264   0.990492                      0.522809
+   F1-score     0.871986   0.858848                     -1.313815
+    ROC-AUC     0.974962   0.966722                     -0.824058
+        FPR     0.336378   0.387243                      5.086486
+
+Falsos negativos evitados: 237
+Falsos positivos adicionales: 1882
+
+Estado: COMPARACIÓN RE2.3 GENERADA CORRECTAMENTE
