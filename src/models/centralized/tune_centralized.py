@@ -28,7 +28,7 @@ MAX_FPR_ALLOWED = 0.03
 FALLBACK_MAX_FPR = 0.05
 F1_TOLERANCE_MARGIN = 0.005
 THRESHOLDS = np.round(np.arange(0.10, 0.91, 0.05), 2)
-PLOT_ONLY = True  # Usa la matriz CV guardada; False para volver a ejecutar todo el tuning.
+PLOT_ONLY = False  # Usa la matriz CV guardada; False para volver a ejecutar todo el tuning.
 EVALUATE_TEST = False  # Poner True una sola vez, después de revisar best_config.json.
 CONFIGURATIONS = [
     {"id": "C1_Nano", "hidden_layers": [16, 8], "dropout": 0.1, "learning_rate": 0.001},
