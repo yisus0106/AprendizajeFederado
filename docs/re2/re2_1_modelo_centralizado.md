@@ -6,7 +6,7 @@ El Resultado Esperado 2.1 (RE2.1) entrega un modelo funcional de clasificación 
 
 Según los indicadores de la tesis, debe evaluarse sobre un conjunto de prueba separado del entrenamiento, reportar **accuracy, precision, recall, F1-score y matriz de confusión**, y alcanzar **recall ≥ 80 % para tráfico malicioso**.
 
-Este documento describe el procedimiento implementado y las evidencias guardadas en la rama `RE2_2`. Las métricas de referencia proceden de `results/re2/centralized/train/metrics.json`; no representan una nueva ejecución realizada durante la revisión documental.
+Este documento describe el procedimiento implementado y las evidencias guardadas en el repositorio. Las métricas de referencia proceden de `results/re2/centralized/train/metrics.json`; no representan una nueva ejecución realizada durante la revisión documental.
 
 ## 2. Archivos y requisitos
 
@@ -44,7 +44,7 @@ Se utilizan los archivos oficiales:
 
 La etiqueta objetivo es `label`. Se excluyen de los predictores `id`, `attack_cat` y la propia etiqueta. Quedan **42 variables**: 39 numéricas y tres categóricas (`proto`, `service`, `state`).
 
-La inspección se realiza con `python src/data/inspect_unsw.py`. Las dimensiones y condiciones de calidad deben comprobarse sobre los archivos disponibles localmente; los CSV originales no están versionados en esta rama.
+La inspección se realiza con `python src/data/inspect_unsw.py`. Las dimensiones y condiciones de calidad deben comprobarse sobre los archivos disponibles localmente; los CSV originales no están versionados en el repositorio.
 
 ## 4. Separación de datos y preprocesamiento
 
@@ -206,7 +206,7 @@ Este hash vincula los bytes del JSON con el reporte; no sustituye la comprobaci�
 
 También existe `tuning/test_metrics.json`, generado por la ruta opcional `EVALUATE_TEST=True` del selector, con resultados coincidentes. Para el flujo documentado se mantiene **EVALUATE_TEST=False** y se utiliza `train/metrics.json` como reporte final. No es necesario volver a evaluar TEST desde el tuning.
 
-El log histórico `logs/re2_1/train_centralized.log` coincide numéricamente con las métricas, pero al final enumera antiguas rutas sin el subdirectorio `train/`. Las rutas vigentes son las de este documento y del código; una nueva ejecución del script de validación actualiza el log.
+El log histórico `logs/re2_1/train_centralized.log` coincide numéricamente con las métricas. Las rutas vigentes son las de este documento y del código; una nueva ejecución del script de validación actualiza el log.
 
 ## 9. Reproducción y validación por el usuario
 

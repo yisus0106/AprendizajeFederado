@@ -21,7 +21,7 @@ Matriz de confusión (0=benigno, 1=ataque):
 weighted avg     0.9061    0.9062    0.9061     82332
 
 Archivos generados:
-results/re2/centralized/metrics.json
-results/re2/centralized/training_history.csv
+results/re2/centralized/train/metrics.json
+results/re2/centralized/train/training_history.csv
 artifacts/predictions/centralized_predictions.csv
 artifacts/models/centralized/unsw_nb15_baseline.keras
