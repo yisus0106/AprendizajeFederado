@@ -1,6 +1,6 @@
 import numpy as np
 
-from src.federated.training import execute_single_round
+from src.federated_re1_3.training import execute_single_round
 
 
 def main():

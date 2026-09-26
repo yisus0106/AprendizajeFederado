@@ -1,6 +1,6 @@
 import tensorflow_federated as tff
 
-from src.federated.model import model_fn
+from src.federated_re1_3.model import model_fn
 
 
 def build_federated_process(

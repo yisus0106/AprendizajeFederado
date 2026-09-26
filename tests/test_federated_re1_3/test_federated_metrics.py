@@ -4,20 +4,20 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-from src.federated.client_data import (
+from src.federated_re1_3.client_data import (
     ClientPartition,
     create_synthetic_client_partitions,
 )
 
-from src.federated.model import (
+from src.federated_re1_3.model import (
     create_keras_model,
 )
 
-from src.federated.server import (
+from src.federated_re1_3.server import (
     build_federated_process,
 )
 
-from src.federated.training import (
+from src.federated_re1_3.training import (
     execute_federated_training,
 )
 

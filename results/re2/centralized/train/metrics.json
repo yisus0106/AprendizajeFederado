@@ -1,0 +1,57 @@
+{
+  "dataset": "UNSW-NB15",
+  "model": "MLP",
+  "configuration_id": "C5_Pyme_Max",
+  "selection_dataset": "train+validation",
+  "evaluation_dataset": "test",
+  "best_config_file": "results/re2/centralized/tuning/best_config.json",
+  "best_config_sha256": "a2f9f057d124c3eef8f4f5a5ebaeb5af7141d5af5b42390ebc1067e5334e4be5",
+  "seed": 42,
+  "input_features": 192,
+  "samples": {
+    "train": 140272,
+    "validation": 35069,
+    "train_plus_validation": 175341,
+    "test": 82332
+  },
+  "architecture": {
+    "hidden_layers": [
+      64,
+      32
+    ],
+    "activation": "relu",
+    "output_activation": "sigmoid",
+    "dropout": 0.2,
+    "num_params": 14465
+  },
+  "optimizer": "Adam",
+  "learning_rate": 0.001,
+  "batch_size": 256,
+  "epochs_trained": 20,
+  "final_training_epochs": 20,
+  "cv_best_epochs": [
+    20,
+    18,
+    20
+  ],
+  "early_stopping_final": false,
+  "class_weight": null,
+  "classification_threshold": 0.8,
+  "accuracy": 0.9061725695962688,
+  "precision": 0.9100106844595626,
+  "recall": 0.9206300185299567,
+  "f1_score": 0.9152895507330606,
+  "roc_auc": 0.9762464120566344,
+  "false_positive_rate": 0.11154054054054054,
+  "specificity": 0.8884594594594595,
+  "confusion_matrix": [
+    [
+      32873,
+      4127
+    ],
+    [
+      3598,
+      41734
+    ]
+  ]
+}

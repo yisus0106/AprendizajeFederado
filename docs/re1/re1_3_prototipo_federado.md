@@ -192,32 +192,32 @@ AprendizajeFederado/
 │   └── requirements_tff_cpu.txt
 │
 ├── src/
-│   └── federated/
-│       ├── __init__.py
+│   └── federated_re1_3/
 │       ├── client_data.py
 │       ├── model.py
 │       ├── server.py
 │       └── training.py
 │
 ├── tests/
-│   ├── __init__.py
-│   ├── verify_environment.py
-│   ├── test_client_data.py
-│   ├── test_server.py
-│   ├── test_federated_round.py
-│   ├── test_federated_training.py
-│   └── test_data_locality.py
+|   └── verify_environment.py
+|   └── test_federated_re1_3/
+│       ├── test_client_data.py
+│       ├── test_server.py
+│       ├── test_federated_round.py
+│       ├── test_federated_training.py
+│       └── test_data_locality.py
 │
 ├── scripts/
 │   └── validate_re1_3.sh
 │
 └── logs/
-    ├── environment_verification.log
-    ├── client_data_verification.log
-    ├── server_verification.log
-    ├── federated_training.log
-    ├── data_locality_verification.log
-    └── re1_3_validation.log
+    └── re1_3/
+        ├── environment_verification.log
+        ├── client_data_verification.log
+        ├── server_verification.log
+        ├── federated_training.log
+        ├── data_locality_verification.log
+        └── re1_3_validation.log
 ```
 
 ---
@@ -227,7 +227,7 @@ AprendizajeFederado/
 La gestión de los datos locales se encuentra implementada en:
 
 ```text
-src/federated/client_data.py
+src/federated_re1_3/client_data.py
 ```
 
 El componente principal es `ClientPartition`, encargado de representar la partición perteneciente a un cliente federado simulado.
@@ -295,7 +295,7 @@ Estos datos no representan tráfico benigno o malicioso y sus métricas no deben
 La prueba se ejecuta mediante:
 
 ```bash
-python -m tests.test_client_data
+python -m tests.test_federated_re1_3.test_client_data
 ```
 
 La prueba verifica:
@@ -321,8 +321,8 @@ Estado: CLIENTES LOCALES OPERATIVOS
 La evidencia puede almacenarse mediante:
 
 ```bash
-python -m tests.test_client_data \
-  | tee logs/client_data_verification.log
+python -m tests.test_federated_re1_3.test_client_data \
+  | tee logs/re1_3/client_data_verification.log
 ```
 
 ---
@@ -332,7 +332,7 @@ python -m tests.test_client_data \
 El modelo utilizado para validar RE1.3 se encuentra en:
 
 ```text
-src/federated/model.py
+src/federated_re1_3/model.py
 ```
 
 Su arquitectura es deliberadamente mínima:
@@ -372,7 +372,7 @@ Su finalidad es únicamente disponer de una estructura entrenable que permita co
 La construcción del proceso federado se encuentra en:
 
 ```text
-src/federated/server.py
+src/federated_re1_3/server.py
 ```
 
 El proceso utiliza:
@@ -397,7 +397,7 @@ El servidor mantiene el estado global utilizado como punto de partida de las ron
 La prueba se ejecuta mediante:
 
 ```bash
-python -m tests.test_server
+python -m tests.test_federated_re1_3.test_server
 ```
 
 Una ejecución validada produjo:
@@ -417,8 +417,8 @@ Esta prueba comprueba la construcción del proceso y la inicialización de un es
 La ejecución se puede registrar mediante:
 
 ```bash
-python -m tests.test_server \
-  | tee logs/server_verification.log
+python -m tests.test_federated_re1_3.test_server \
+  | tee logs/re1_3/server_verification.log
 ```
 
 ---
@@ -428,7 +428,7 @@ python -m tests.test_server \
 La integración entre clientes y servidor se encuentra implementada en:
 
 ```text
-src/federated/training.py
+src/federated_re1_3/training.py
 ```
 
 El flujo de una ronda corresponde a:
@@ -466,7 +466,7 @@ El estado `wr+1` obtenido al finalizar una ronda pasa a convertirse en el estado
 La integración básica se verifica mediante:
 
 ```bash
-python -m tests.test_federated_round
+python -m tests.test_federated_re1_3.test_federated_round
 ```
 
 Una ejecución produjo:
@@ -496,7 +496,7 @@ Durante esta prueba participaron los dos clientes y ambos parámetros entrenable
 La ejecución principal de RE1.3 se verifica mediante:
 
 ```bash
-python -m tests.test_federated_training
+python -m tests.test_federated_re1_3.test_federated_training
 ```
 
 La configuración utilizada es:
@@ -530,8 +530,8 @@ Estado: ENTRENAMIENTO FEDERADO OPERATIVO
 La evidencia se registra mediante:
 
 ```bash
-python -m tests.test_federated_training \
-  | tee logs/federated_training.log
+python -m tests.test_federated_re1_3.test_federated_training \
+  | tee logs/re1_3/federated_training.log
 ```
 
 Los valores de `loss` y `accuracy` corresponden a una ejecución de referencia del modelo sintético. Su finalidad es demostrar que el proceso de entrenamiento se ejecuta y genera métricas; no representan desempeño de detección de intrusiones.
@@ -552,7 +552,7 @@ parámetros globales modificados en cada ronda
 La localidad lógica se verifica mediante:
 
 ```bash
-python -m tests.test_data_locality
+python -m tests.test_federated_re1_3.test_data_locality
 ```
 
 La prueba comprueba primero la existencia de dos clientes independientes y valida la estructura de sus particiones:
@@ -651,7 +651,7 @@ Para almacenar la evidencia:
 
 ```bash
 ./scripts/validate_re1_3.sh \
-  | tee logs/re1_3_validation.log
+  | tee logs/re1_3/re1_3_validation.log
 ```
 
 Una ejecución satisfactoria debe finalizar sin errores de aserción ni excepciones.
@@ -664,12 +664,13 @@ Los registros principales de RE1.3 se encuentran en:
 
 ```text
 logs/
-├── environment_verification.log
-├── client_data_verification.log
-├── server_verification.log
-├── federated_training.log
-├── data_locality_verification.log
-└── re1_3_validation.log
+└── re1_3/
+    ├── environment_verification.log
+    ├── client_data_verification.log
+    ├── server_verification.log
+    ├── federated_training.log
+    ├── data_locality_verification.log
+    └── re1_3_validation.log
 ```
 
 Estos archivos constituyen evidencia reproducible de las principales verificaciones realizadas durante la construcción incremental del prototipo.
