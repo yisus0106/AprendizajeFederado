@@ -1,6 +1,6 @@
 """Grafica CV existente o selecciona arquitectura; evalúa test si EVALUATE_TEST=True.
 
-Ubicar en src/models/ y ejecutar: python src/models/tune_centralized_final.py
+Ejecutar desde la raíz: python src/models/centralized/tune_centralized.py
 Se esperan data/processed/unsw_nb15/{train,validation,test}.npz con claves X e y.
 Con PLOT_ONLY=True se generan las figuras sin reentrenar ni modificar best_config.json.
 """
@@ -40,9 +40,9 @@ CONFIGURATIONS = [
 METRICS = ("accuracy", "precision", "recall", "f1_score", "roc_auc", "specificity", "false_positive_rate")
 
 # ============================================================
-# Rutas (archivo ubicado en src/models/)
+# Rutas (archivo ubicado en src/models/centralized/)
 # ============================================================
-BASE_DIR = Path(__file__).resolve().parents[2]
+BASE_DIR = Path(__file__).resolve().parents[3]
 DATA_DIR = BASE_DIR / "data" / "processed" / "unsw_nb15"
 RESULTS_DIR = BASE_DIR / "results" / "re2" / "centralized" / "tuning"
 TRAIN_FILE = DATA_DIR / "train.npz"

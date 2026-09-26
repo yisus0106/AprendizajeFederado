@@ -6,38 +6,40 @@ PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$PROJECT_ROOT"
 
 echo "============================================"
-echo " VALIDACION COMPLETA DEL RE2.1"
+echo " VALIDACION DEL RE2.1"
 echo " Baseline centralizado sobre UNSW-NB15"
 echo "============================================"
-echo
 
-echo "[1/3] Evaluacion de configuraciones y seleccion de la mejor"
-echo "(Asegúrate de que PLOT_ONLY = False en tune_centralized.py)"
-python src/models/centralized/tune_centralized.py
-echo
+# Evita omitir el tuning o evaluar TEST también desde el selector.
+python - <<'PY'
+import ast
+from pathlib import Path
+
+source = Path("src/models/centralized/tune_centralized.py")
+flags = {}
+for node in ast.parse(source.read_text(encoding="utf-8")).body:
+    if isinstance(node, ast.Assign):
+        for target in node.targets:
+            if isinstance(target, ast.Name) and target.id in {"PLOT_ONLY", "EVALUATE_TEST"}:
+                flags[target.id] = ast.literal_eval(node.value)
+if any(flags.get(name) is not False for name in ("PLOT_ONLY", "EVALUATE_TEST")):
+    raise SystemExit("Configura PLOT_ONLY = False y EVALUATE_TEST = False en tune_centralized.py.")
+for split in ("train", "validation", "test"):
+    path = Path("data/processed/unsw_nb15") / f"{split}.npz"
+    if not path.is_file():
+        raise SystemExit(f"Falta {path}. Ejecuta primero python src/data/preprocess_unsw.py.")
+PY
+
+mkdir -p logs/re2_1
+
+echo "[1/2] Seleccion por CV y generacion automatica de figuras"
+python src/models/centralized/tune_centralized.py 2>&1 | tee logs/re2_1/tune_centralized.log
+
+echo "[2/2] Entrenamiento final y evaluacion sobre TEST"
+python src/models/centralized/train_centralized.py 2>&1 | tee logs/re2_1/train_centralized.log
 
 echo "============================================"
-echo " ACCIÓN REQUERIDA ANTES DE CONTINUAR"
-echo "============================================"
-echo "Para generar las figuras de la validación cruzada (CV), debes"
-echo "modificar manualmente el archivo:"
-echo "src/models/centralized/tune_centralized.py"
-echo ""
-echo "Abre el archivo, busca la variable global y cámbiala a:"
-echo "PLOT_ONLY = True"
-echo "============================================"
-echo
-read -p "Presiona [Enter] cuando hayas guardado el cambio para generar las figuras..."
-echo
-
-echo "[2/3] Generación de figuras CV"
-python src/models/centralized/tune_centralized.py
-echo
-
-echo "[3/3] Entrenamiento y evaluacion del baseline centralizado"
-python src/models/centralized/train_centralized.py
-echo
-
-echo "============================================"
-echo " RE2.1 FINALIZADO CORRECTAMENTE"
+echo " RE2.1: EJECUCION FINALIZADA CORRECTAMENTE"
+echo " Revisa metrics.json y verifica recall >= 0.80."
+echo " results/re2/centralized/train/metrics.json"
 echo "============================================"

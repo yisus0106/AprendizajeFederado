@@ -1,1071 +1,307 @@
 # RE2.1 – Modelo de detección de intrusiones basado en tráfico de red
 
-## 1. Propósito
-
-Este documento describe la implementación, configuración, evaluación y procedimiento de reproducción del **Resultado Esperado 2.1 (RE2.1)** del proyecto:
-
-> Modelo funcional de detección de intrusiones basado en tráfico de red.
-
-El objetivo de este resultado es disponer de un modelo de clasificación binaria capaz de distinguir entre tráfico **benigno** y **malicioso**, utilizando el conjunto de datos **UNSW-NB15**.
-
-El modelo obtenido constituye además la línea base centralizada que será utilizada posteriormente para:
-
-- integrar el mecanismo de detección con la arquitectura de aprendizaje federado en el RE2.2;
-- comparar experimentalmente el enfoque centralizado y el federado en el RE2.3.
-
-El desarrollo del RE2.1 comprende:
-
-1. inspección del conjunto de datos;
-2. preparación y preprocesamiento;
-3. separación de entrenamiento, validación y prueba;
-4. definición del modelo neuronal;
-5. ajuste controlado de hiperparámetros;
-6. selección del umbral de clasificación;
-7. evaluación final sobre el conjunto de prueba;
-8. almacenamiento de métricas, predicciones y modelo entrenado.
+## 1. Propósito y alcance
 
----
+El Resultado Esperado 2.1 (RE2.1) entrega un modelo funcional de clasificación binaria sobre **UNSW-NB15**, con las clases **benigno (`0`)** y **malicioso (`1`)**. Constituye la línea base centralizada para la integración federada del RE2.2 y la comparación experimental del RE2.3.
 
-## 2. Estructura relacionada del proyecto
+Según los indicadores de la tesis, debe evaluarse sobre un conjunto de prueba separado del entrenamiento, reportar **accuracy, precision, recall, F1-score y matriz de confusión**, y alcanzar **recall ≥ 80 % para tráfico malicioso**.
 
-Los principales archivos involucrados en el RE2.1 se encuentran organizados de la siguiente manera:
+Este documento describe el procedimiento implementado y las evidencias guardadas en el repositorio. Las métricas de referencia proceden de `results/re2/centralized/train/metrics.json`; no representan una nueva ejecución realizada durante la revisión documental.
 
-```text
-data/
-├── raw/
-│   └── unsw_nb15/
-│       ├── NUSW-NB15_features.csv
-│       ├── UNSW_NB15_testing-set.csv
-│       └── UNSW_NB15_training-set.csv
-│
-└── processed/
-    └── unsw_nb15/
-        ├── metadata.json
-        ├── preprocessor.joblib
-        ├── train.npz
-        ├── validation.npz
-        └── test.npz
+## 2. Archivos y requisitos
 
-src/
-├── data/
-│   ├── inspect_unsw.py
-│   └── preprocess_unsw.py
-│
-└── models/
-    └── centralized/
-        ├── train_centralized.py
-        └── tune_centralized.py
+| Elemento | Ruta desde la raíz del repositorio |
+|---|---|
+| Inspección de datos | `src/data/inspect_unsw.py` |
+| Preprocesamiento | `src/data/preprocess_unsw.py` |
+| Selección por validación cruzada y figuras | `src/models/centralized/tune_centralized.py` |
+| Entrenamiento y evaluación final | `src/models/centralized/train_centralized.py` |
+| Ejecución del flujo de validación | `scripts/validate_re2_1.sh` |
+| Configuración seleccionada | `results/re2/centralized/tuning/best_config.json` |
+| Resultados de selección | `results/re2/centralized/tuning/` |
+| Resultados del entrenamiento final | `results/re2/centralized/train/` |
+| Logs de ejecución | `logs/re2_1/` |
+| Modelo final | `artifacts/models/centralized/unsw_nb15_baseline.keras` |
+| Predicciones de TEST | `artifacts/predictions/centralized_predictions.csv` |
 
-results/
-└── re2/
-    └── centralized
-        ├── train
-        │   ├── metrics.json
-        │   └── training_history.csv
-        └── tuning
-            ├── best_config.json
-            ├── cv_training_epochs.csv
-            ├── eligible_matrix.csv
-            ├── figures/
-            ├── full_cv_matrix_search.csv
-            ├── test_metrics.json
-            └── top_candidates_cv.csv
+Se requiere un entorno Python compatible con TensorFlow/Keras, NumPy, pandas, scikit-learn, joblib y Matplotlib. El proyecto conserva referencias de dependencias en `requirements/requirements_tff_cpu.txt` y `requirements/requirements-lock.txt`. No debe suponerse que cualquiera de esos archivos cubra por sí solo todas las importaciones: antes de ejecutar, comprobar también la disponibilidad de **pandas y Matplotlib**. El archivo de dependencias TFF incluye un wheel de JAX específico de CPython 3.11/Linux x86_64; no es una receta universal para otras plataformas.
 
-artifacts/
-├── models/
-│   └── centralized/
-│       └── unsw_nb15_baseline.keras
-│
-└── predictions/
-    └── centralized_predictions.csv
-```
+Los datos originales, datos procesados, modelos `.keras` y `artifacts/` están excluidos mediante `.gitignore`. **Clonar el repositorio no descarga esos archivos**: es necesario disponer del dataset y regenerar o recuperar los artefactos de la ejecución correspondiente.
 
----
+## 3. Dataset y clases
 
-## 3. Dataset utilizado
+Se utilizan los archivos oficiales:
 
-Se utilizó el conjunto de datos **UNSW-NB15**, orientado al análisis de tráfico de red y utilizado para problemas de detección de intrusiones.
+- `data/raw/unsw_nb15/UNSW_NB15_training-set.csv`.
+- `data/raw/unsw_nb15/UNSW_NB15_testing-set.csv`.
 
-Los archivos utilizados fueron:
+`NUSW-NB15_features.csv` puede conservarse como referencia descriptiva; el preprocesador no lo carga.
 
-```text
-data/raw/unsw_nb15/UNSW_NB15_training-set.csv
-data/raw/unsw_nb15/UNSW_NB15_testing-set.csv
-```
+| Conjunto oficial | Registros | Benignos (`0`) | Maliciosos (`1`) |
+|---|---:|---:|---:|
+| Entrenamiento | 175,341 | 56,000 | 119,341 |
+| Prueba | 82,332 | 37,000 | 45,332 |
 
-El archivo:
+La etiqueta objetivo es `label`. Se excluyen de los predictores `id`, `attack_cat` y la propia etiqueta. Quedan **42 variables**: 39 numéricas y tres categóricas (`proto`, `service`, `state`).
 
-```text
-NUSW-NB15_features.csv
-```
+La inspección se realiza con `python src/data/inspect_unsw.py`. Las dimensiones y condiciones de calidad deben comprobarse sobre los archivos disponibles localmente; los CSV originales no están versionados en el repositorio.
 
-se conserva como referencia de las características originales del dataset.
+## 4. Separación de datos y preprocesamiento
 
-El problema fue definido como una clasificación binaria:
+`preprocess_unsw.py` divide el entrenamiento oficial con `test_size=0.20`, `random_state=42` y estratificación por `label`:
 
-```text
-0 = tráfico benigno
-1 = tráfico malicioso
-```
-
-La variable objetivo utilizada fue:
-
-```text
-label
-```
-
-No se utilizó `attack_cat` como predictor, debido a que contiene información sobre el tipo de ataque y se encuentra directamente relacionada con la etiqueta binaria que se busca predecir.
-
-Tampoco se utilizó `id`, debido a que corresponde a un identificador de registro y no representa una característica útil del tráfico.
-
----
-
-## 4. Inspección inicial de UNSW-NB15
-
-La inspección del dataset se realiza mediante:
-
-```bash
-python src/data/inspect_unsw.py
-```
-
-Durante esta inspección se verifican:
-
-- dimensiones de los conjuntos;
-- nombres de las columnas;
-- tipos de datos;
-- valores nulos;
-- registros duplicados;
-- valores infinitos;
-- distribución de las clases;
-- categorías de ataque disponibles.
-
-### 4.1 Conjunto oficial de entrenamiento
-
-El archivo oficial de entrenamiento contiene:
-
-```text
-Registros: 175,341
-Columnas:  45
-```
-
-Distribución de la variable `label`:
-
-| Clase | Cantidad | Porcentaje |
-|---|---:|---:|
-| Benigno (`0`) | 56,000 | 31.94 % |
-| Malicioso (`1`) | 119,341 | 68.06 % |
-
-No se identificaron:
-
-```text
-Valores nulos:     0
-Registros duplicados: 0
-Valores infinitos: 0
-```
-
-### 4.2 Conjunto oficial de prueba
-
-El archivo oficial de prueba contiene:
-
-```text
-Registros: 82,332
-Columnas:  45
-```
-
-Distribución:
-
-| Clase | Cantidad | Porcentaje |
-|---|---:|---:|
-| Benigno (`0`) | 37,000 | 44.94 % |
-| Malicioso (`1`) | 45,332 | 55.06 % |
-
-Tampoco se identificaron valores nulos, duplicados o infinitos.
-
-El conjunto oficial de prueba se conserva independiente y no participa en el entrenamiento ni en la selección de hiperparámetros.
-
----
-
-## 5. Variables utilizadas
-
-El dataset original presenta 45 columnas.
-
-Para el modelo se eliminan:
-
-```text
-id
-attack_cat
-label
-```
-
-donde `label` constituye la variable objetivo.
-
-Por tanto, antes de la transformación se utilizan:
-
-```text
-42 variables predictoras
-```
-
-Estas se dividen en:
-
-```text
-3 variables categóricas
-39 variables numéricas
-```
-
-### 5.1 Variables categóricas
-
-Las variables categóricas utilizadas son:
-
-```text
-proto
-service
-state
-```
-
-Estas variables son transformadas mediante **One-Hot Encoding**.
-
-### 5.2 Variables numéricas
-
-Las 39 variables restantes son tratadas como características numéricas y normalizadas mediante:
-
-```text
-StandardScaler
-```
-
-Después de aplicar el preprocesamiento, la representación final contiene:
-
-```text
-192 características
-```
-
-Estas 192 entradas conforman la dimensión de entrada de la red neuronal.
-
----
-
-## 6. Separación TRAIN, VALIDATION y TEST
-
-El conjunto de prueba oficial de UNSW-NB15 se mantiene completamente separado.
-
-El archivo oficial de entrenamiento es dividido internamente en:
-
-```text
-80 % TRAIN
-20 % VALIDATION
-```
-
-utilizando:
-
-```text
-random_state = 42
-stratify = label
-```
-
-La separación resultante es:
-
-| Conjunto | Registros | Benignos | Maliciosos |
+| Partición persistida | Registros | Benignos | Maliciosos |
 |---|---:|---:|---:|
 | TRAIN | 140,272 | 44,800 | 95,472 |
 | VALIDATION | 35,069 | 11,200 | 23,869 |
-| TEST | 82,332 | 37,000 | 45,332 |
+| TEST oficial | 82,332 | 37,000 | 45,332 |
 
-Las proporciones de TRAIN y VALIDATION se mantienen aproximadamente en:
+El preprocesador se ajusta **solo sobre TRAIN**. Aplica `StandardScaler` a las variables numéricas y `OneHotEncoder(handle_unknown="ignore", sparse_output=False, dtype=np.float32)` a las categóricas. Después transforma VALIDATION y TEST sin reajustarse y convierte las entradas a `float32`.
 
-```text
-31.94 % benigno
-68.06 % malicioso
-```
+En la ejecución documentada se obtienen **192 características**, conservando su orden. Esta dimensión depende de las categorías aprendidas por el preprocesador y debe comprobarse con `metadata.json`.
 
-El conjunto TEST conserva la distribución original proporcionada por UNSW-NB15.
+Se generan en `data/processed/unsw_nb15/`:
 
-### 6.1 Función de cada conjunto
+| Archivo | Contenido |
+|---|---|
+| `train.npz` | Claves `X` e `y`; formas esperadas `(140272, 192)` y `(140272,)` |
+| `validation.npz` | Claves `X` e `y`; formas esperadas `(35069, 192)` y `(35069,)` |
+| `test.npz` | Claves `X` e `y`; formas esperadas `(82332, 192)` y `(82332,)` |
+| `preprocessor.joblib` | Transformador ajustado sobre TRAIN |
+| `metadata.json` | Semilla, columnas, tamaños, distribución de clases y nombres de características transformadas |
 
-**TRAIN**
+El preprocesamiento comprueba dimensiones, correspondencia entre entradas y etiquetas y ausencia de valores no finitos. Los scripts centralizados verifican además las etiquetas binarias y la compatibilidad de dimensiones entre particiones.
 
-Se utiliza para actualizar los pesos y sesgos del modelo mediante el proceso de entrenamiento.
+### 4.1 Uso de TRAIN y VALIDATION en el procedimiento vigente
 
-**VALIDATION**
+Las particiones guardadas no equivalen a conjuntos de entrenamiento y validación fijos durante el tuning actual. El selector concatena **TRAIN + VALIDATION**, obteniendo el conjunto de desarrollo de **175,341 registros**, y realiza sobre él validación cruzada estratificada de tres folds.
 
-Se utiliza exclusivamente para:
+Una vez seleccionada la configuración, el modelo final se entrena desde cero sobre **todo TRAIN + VALIDATION** durante un número de épocas fijado por CV. VALIDATION, por tanto, **sí participa en el entrenamiento final**. TEST permanece separado de la selección y de las actualizaciones de pesos.
 
-- controlar el proceso de entrenamiento;
-- aplicar EarlyStopping;
-- comparar configuraciones;
-- seleccionar hiperparámetros;
-- seleccionar el threshold de clasificación.
+### 4.2 Alcance metodológico de la CV
 
-**TEST**
+La CV recibe matrices ya transformadas por un preprocesador ajustado anteriormente sobre TRAIN. **El preprocesamiento no se reajusta dentro de cada fold**. Parte de los registros que quedan en validación de un fold pudo intervenir en el ajuste inicial del escalador y del codificador; por ello, esta CV no constituye una evaluación de todo el pipeline con preprocesamiento independiente por fold.
 
-Se utiliza únicamente para la evaluación final del modelo seleccionado.
+Esta limitación debe declararse al interpretar las métricas de CV. TEST no interviene en ese ajuste. Una variante con preprocesamiento dentro de cada fold requeriría repetir la selección y generar nuevas evidencias; no debe presentarse como si fuera el procedimiento que produjo los resultados actuales.
 
-No se utiliza TEST para decidir:
+## 5. Selección de arquitectura y umbral
 
-- arquitectura;
-- learning rate;
-- dropout;
-- número de neuronas;
-- threshold;
-- época óptima.
+`tune_centralized.py` utiliza `StratifiedKFold(n_splits=3, shuffle=True, random_state=42)` y los mismos folds para las cinco configuraciones:
 
----
+| ID | Capas ocultas | Dropout tras la primera capa | Learning rate | Parámetros con 192 entradas |
+|---|---|---:|---:|---:|
+| C1_Nano | 16 → 8 | 0.10 | 0.001 | 3,233 |
+| C2_Micro_Base | 32 → 16 | 0.20 | 0.001 | 6,721 |
+| C3_Micro_Robust_FL | 32 → 16 | 0.35 | 0.001 | 6,721 |
+| C4_Micro_Slow_FL | 32 → 16 | 0.20 | 0.0005 | 6,721 |
+| C5_Pyme_Max | 64 → 32 | 0.20 | 0.001 | 14,465 |
 
-## 7. Preprocesamiento
+Cada fold utiliza Adam, pérdida `binary_crossentropy`, batch size 256 y hasta 20 épocas, sin `class_weight`. Se aplica `EarlyStopping(monitor="val_loss", patience=3, restore_best_weights=True)`. Las semillas de entrenamiento son `42 + número_de_fold`.
 
-El procedimiento se implementa en:
+Sobre las probabilidades de validación de cada fold se prueban **17 umbrales**, desde 0.10 hasta 0.90 con incrementos de 0.05. Esto produce 85 filas agregadas de arquitectura–umbral, a partir de 15 entrenamientos; no se reentrena para cada umbral.
 
-```text
-src/data/preprocess_unsw.py
-```
+### 5.1 Regla exacta de selección
 
-y puede ejecutarse mediante:
+1. Filtrar candidatos con **recall medio ≥ 0.80** y **FPR medio + desviación estándar ≤ 0.03**.
+2. Solo si no hay candidatos, repetir con límite FPR de 0.05. Si tampoco hay candidatos, detener la selección con error.
+3. Calcular el mayor F1 medio entre los candidatos elegibles y conservar los que estén a una distancia máxima de **0.005** de ese valor.
+4. Entre estos, preferir menor número de parámetros, después menor FPR medio + desviación, y después mayor F1 medio. Los empates restantes se ordenan por ID de configuración y umbral.
 
-```bash
-python src/data/preprocess_unsw.py
-```
+La desviación estándar se calcula entre los tres folds con `ddof=1`. Las bandas de las figuras son descriptivas (± una desviación), **no intervalos de confianza**. Los límites de FPR son criterios de selección en CV; no garantizan el mismo FPR sobre TEST.
 
-El procedimiento sigue el siguiente flujo:
+### 5.2 Configuración seleccionada y resultados de CV
 
-```text
-UNSW_NB15_training-set.csv
-            │
-            ↓
-    separación estratificada
-            │
-       ┌────┴────┐
-       ↓         ↓
-     TRAIN   VALIDATION
-       │
-       ↓
-FIT del preprocesador
-       │
-       ├──────────────→ transforma VALIDATION
-       │
-       └──────────────→ transforma TEST
-```
+El `best_config.json` versionado identifica **C5_Pyme_Max**, con **umbral 0.80** y límite de selección `FPR medio + desviación ≤ 0.03`.
 
-El preprocesador se ajusta **únicamente utilizando TRAIN**.
+| Métrica CV | Media | Desviación entre folds |
+|---|---:|---:|
+| Accuracy | 0.917099 | 0.003336 |
+| Precision | 0.986478 | 0.001113 |
+| Recall malicioso | 0.890406 | 0.005593 |
+| F1-score | 0.935976 | 0.002789 |
+| ROC-AUC | 0.989885 | 0.000185 |
+| FPR | 0.026018 | 0.002290 |
 
-Esto evita que información estadística de VALIDATION o TEST participe durante el ajuste de:
+El FPR medio + desviación es **0.028308**, inferior a 0.03. Las mejores épocas de la configuración ganadora son **[20, 18, 20]**. El selector utiliza la mediana redondeada mediante `floor(mediana + 0.5)`, dando **20 épocas finales**.
 
-- `StandardScaler`;
-- categorías de `OneHotEncoder`.
+## 6. Modelo centralizado final
 
-La configuración categórica utiliza:
+| Componente | Configuración congelada |
+|---|---|
+| Entrada | 192 características |
+| Primera capa oculta | Dense(64), ReLU |
+| Regularización | Dropout(0.20), solo tras la primera capa oculta |
+| Segunda capa oculta | Dense(32), ReLU |
+| Salida | Dense(1), Sigmoid |
+| Parámetros entrenables | 14,465 |
+| Optimizador | Adam, learning rate 0.001 |
+| Pérdida | Binary Crossentropy |
+| Batch size | 256 |
+| Datos de entrenamiento final | TRAIN + VALIDATION: 175,341 registros |
+| Épocas finales | 20, fijadas por CV |
+| EarlyStopping final | No |
+| Class weight | No |
+| Semilla final | 42 |
+| Umbral de clasificación | 0.80 |
+
+`train_centralized.py` lee la configuración desde `best_config.json`, comprueba sus campos y verifica que el modelo tenga el número de parámetros esperado. Entrena un modelo nuevo; no reutiliza los pesos de los folds.
+
+La salida es la probabilidad estimada de clase maliciosa. La regla final es:
 
 ```python
-OneHotEncoder(
-    handle_unknown="ignore"
-)
+prediction = (probability >= 0.80).astype(int)
 ```
 
-permitiendo procesar categorías no observadas durante el ajuste sin modificar la estructura de entrada.
+El historial de entrenamiento contiene `loss`, `accuracy`, `precision`, `recall` y `auc`. Las métricas binarias Keras de ese historial usan su umbral predeterminado **0.50**; no deben confundirse con las métricas finales sobre TEST, calculadas explícitamente con **0.80**. No hay columnas `val_*` en el entrenamiento final.
 
-Los datos procesados son convertidos a:
+## 7. Evaluación sobre TEST y resultados registrados
 
-```text
-float32
-```
+La evaluación utiliza los **82,332 registros** del TEST oficial, con la clase positiva `1 = malicioso`. La configuración y el umbral se mantienen fijos.
 
-y posteriormente se verifica la ausencia de:
+| Métrica | Valor | Porcentaje cuando corresponde |
+|---|---:|---:|
+| Accuracy | 0.906173 | 90.62 % |
+| Precision | 0.910011 | 91.00 % |
+| Recall malicioso | 0.920630 | 92.06 % |
+| F1-score | 0.915290 | 91.53 % |
+| ROC-AUC | 0.976246 | — |
+| FPR | 0.111541 | 11.15 % |
+| Specificity | 0.888459 | 88.85 % |
 
-- `NaN`;
-- valores infinitos;
-- diferencias de dimensiones entre los conjuntos.
+La matriz de confusión tiene filas de clase real y columnas de clase predicha:
 
----
+| Clase real / predicción | Benigno (`0`) | Malicioso (`1`) |
+|---|---:|---:|
+| Benigno (`0`) | TN = 32,873 | FP = 4,127 |
+| Malicioso (`1`) | FN = 3,598 | TP = 41,734 |
 
-## 8. Artefactos del preprocesamiento
+El recall es `TP / (TP + FN) = 41734 / 45332 = 0.920630`, por lo que supera el mínimo del 80 %. El FPR es `FP / (TN + FP) = 4127 / 37000 = 0.111541`.
 
-La ejecución genera:
+**El FPR de TEST (11.15 %) supera los límites usados para seleccionar candidatos en CV.** Se cumple el indicador de recall del RE2.1, pero no corresponde afirmar que el modelo mantenga en TEST una tasa de falsas alarmas inferior al 3 % o al 5 %. Esta diferencia debe conservarse en la discusión de resultados, sin reajustar el umbral a partir de TEST.
 
-```text
-data/processed/unsw_nb15/
-├── train.npz
-├── validation.npz
-├── test.npz
-├── preprocessor.joblib
-└── metadata.json
-```
+## 8. Evidencias y trazabilidad
 
-### `train.npz`
-
-Contiene:
-
-```text
-X_train: (140272, 192)
-y_train: (140272,)
-```
-
-### `validation.npz`
-
-Contiene:
-
-```text
-X_validation: (35069, 192)
-y_validation: (35069,)
-```
-
-### `test.npz`
-
-Contiene:
-
-```text
-X_test: (82332, 192)
-y_test: (82332,)
-```
-
-### `preprocessor.joblib`
-
-Contiene el objeto de preprocesamiento ajustado únicamente con TRAIN.
-
-### `metadata.json`
-
-Contiene información necesaria para reproducir y auditar el preprocesamiento, incluyendo:
-
-- seed;
-- dimensiones;
-- número de características;
-- variables categóricas;
-- variables numéricas;
-- distribución de clases;
-- nombres de las características procesadas.
-
----
-
-## 9. Modelo centralizado de referencia
-
-El modelo se implementa mediante **TensorFlow/Keras** en:
-
-```text
-src/models/centralized/train_centralized.py
-```
-
-Se utiliza una red neuronal multicapa o **Multilayer Perceptron (MLP)** para clasificación binaria.
-
-La arquitectura final es:
-
-```text
-Input(192)
-    │
-    ↓
-Dense(64, ReLU)
-    │
-    ↓
-Dropout(0.20)
-    │
-    ↓
-Dense(32, ReLU)
-    │
-    ↓
-Dense(1, Sigmoid)
-```
-
-Número total de parámetros:
-
-```text
-14,465 parámetros
-```
-
-Todos los parámetros son entrenables.
-
-### 9.1 Función de salida
-
-La última capa utiliza:
-
-```text
-sigmoid
-```
-
-por lo que el modelo produce una probabilidad entre:
-
-```text
-0 y 1
-```
-
-correspondiente a la probabilidad estimada de que una muestra pertenezca a la clase maliciosa.
-
----
-
-## 10. Configuración de entrenamiento
-
-La configuración final utilizada es:
-
-| Parámetro | Valor |
+| Archivo | Información guardada |
 |---|---|
-| Arquitectura oculta | `[64, 32]` |
-| Activación | ReLU |
-| Activación de salida | Sigmoid |
-| Dropout | 0.20 |
-| Optimizador | Adam |
-| Learning rate | 0.001 |
-| Función de pérdida | Binary Crossentropy |
-| Batch size | 256 |
-| Máximo de epochs | 20 |
-| EarlyStopping patience | 3 |
-| Seed | 42 |
-| Threshold final | 0.55 |
+| `tuning/full_cv_matrix_search.csv` | Media y desviación de métricas para las 85 combinaciones |
+| `tuning/cv_training_epochs.csv` | Mejor época, épocas ejecutadas y mejor pérdida de validación por configuración y fold |
+| `tuning/eligible_matrix.csv` | Candidatos que cumplen los filtros de recall y FPR |
+| `tuning/top_candidates_cv.csv` | Candidatos dentro de la tolerancia de F1, ordenados para el desempate |
+| `tuning/best_config.json` | Arquitectura, umbral, regla de selección, métricas CV y épocas finales |
+| `tuning/figures/cv_*.png` y `cv_*.pdf` | Cinco figuras, una por configuración, en ambos formatos |
+| `train/metrics.json` | Configuración, muestras, métricas TEST, matriz de confusión y SHA-256 de la configuración |
+| `train/training_history.csv` | Métricas de entrenamiento por época |
 
-La función de pérdida utilizada es:
+Las rutas abreviadas de esta tabla son relativas a `results/re2/centralized/`.
 
-```text
-binary_crossentropy
-```
+El modelo final se guarda en `artifacts/models/centralized/unsw_nb15_baseline.keras` y las predicciones en `artifacts/predictions/centralized_predictions.csv`, con columnas `real`, `probability` y `prediction`. Para inferencia reproducible se requiere también el preprocesador y el umbral: cargar el `.keras` por sí solo no reconstruye toda la preparación de datos ni aplica automáticamente el umbral seleccionado.
 
-por tratarse de un problema de clasificación binaria.
-
----
-
-## 12. Ajuste controlado de hiperparámetros
-
-La selección de configuración se implementó mediante:
+En las evidencias revisadas, el SHA-256 de `best_config.json` coincide con `best_config_sha256` de `train/metrics.json`:
 
 ```text
-src/models/centralized/tune_centralized.py
+a2f9f057d124c3eef8f4f5a5ebaeb5af7141d5af5b42390ebc1067e5334e4be5
 ```
 
-y se ejecuta con:
+Este hash vincula los bytes del JSON con el reporte; no sustituye la comprobación del modelo ni de los datos originales.
 
-```bash
-python src/models/centralized/tune_centralized.py
-```
+También existe `tuning/test_metrics.json`, generado por la ruta opcional `EVALUATE_TEST=True` del selector, con resultados coincidentes. Para el flujo documentado se mantiene **EVALUATE_TEST=False** y se utiliza `train/metrics.json` como reporte final. No es necesario volver a evaluar TEST desde el tuning.
 
-Durante este procedimiento no se utiliza el conjunto TEST.
+El log histórico `logs/re2_1/train_centralized.log` coincide numéricamente con las métricas. Las rutas vigentes son las de este documento y del código; una nueva ejecución del script de validación actualiza el log.
 
-Se evaluaron cinco configuraciones.
+## 9. Reproducción y validación por el usuario
 
-| ID | Capas | Dropout | Learning rate |
-|---|---|---:|---:|
-| C1_Nano | 16 → 8 | 0.1 | 0.001 |
-| C2_Micro_Base | 32 → 16 | 0.2 | 0.001 |
-| C3_Micro_Robust_FL | 32 → 16 | 0.35 | 0.001 |
-| C4_Micro_Slow_FL | 32 → 16 | 0.2 | 0.0005 |
-| C5_Pyme_Max | 64 → 32 | 0.2 | 0.001 |
+Ejecutar desde la raíz del repositorio, en Bash (por ejemplo, Linux o WSL).
 
-La configuración seleccionada fue:
+### 9.1 Preparar el entorno y los datos
 
-```text
-C5_Pyme_Max
-```
-
-correspondiente a:
-
-```text
-Dense(64)
-Dropout(0.2)
-Dense(32)
-Learning rate = 0.001
-```
-
-La configuración presentó el mejor equilibrio según F1 además de considerar un nivel bajo de FPR
-
-Las configuraciones y resultados completos se encuentran en:
-
-```text
-results/re2/centralized/tuning/eligible_matrix.csv
-```
-
----
-
-## 13. Selección del threshold
-
-Debido a la necesidad de controlar las falsas alarmas del IDS, se evaluaron múltiples thresholds.
-
-Se probaron valores desde:
-
-```text
-0.10
-```
-
-hasta:
-
-```text
-0.90
-```
-
-con incrementos de:
-
-```text
-0.05
-```
-
-Los resultados completos están disponibles en:
-
-```text
-results/re2/centralized/tuning/full_cv_matrix_search.csv
-```
-
-Los valores relevantes relevantes incluyendo el elegido están en:
-
-```text
-results/re2/centralized/tuning/eligible_matrix.csv
-```
-
-Se consideraron equivalentes las configuraciones cuya diferencia respecto del máximo F1 fuera menor o igual a:
-
-```text
-0.005
-```
-
-y que cumplieran:
-
-```text
-Recall >= 0.80
-```
-
-Además de un FPR aceptable de:
-
-```text
-0.03
-```
-
-Y como margen máximo de FPR de:
-```text
-0.05
-```
-
-Esta decisión permitió disminuir las falsas alarmas manteniendo un recall ampliamente superior al mínimo requerido.
-
----
-
-## 14. Métricas de evaluación
-
-Las métricas principales utilizadas son:
-
-```text
-Accuracy
-Precision
-Recall
-F1-score
-```
-
-Adicionalmente se calcula:
-
-```text
-ROC-AUC
-```
-
-y se genera una matriz de confusión.
-
-Para análisis complementario durante la selección del configuración se utilizaron también:
-
-```text
-Specificity
-False Positive Rate (FPR)
-```
-
-La clase positiva corresponde a:
-
-```text
-1 = tráfico malicioso
-```
-
-Por tanto, el recall representa la proporción de tráfico malicioso correctamente identificado.
-
----
-
-## 15. Evaluación final sobre TEST
-
-Después de seleccionar la arquitectura, hiperparámetros y threshold utilizando TRAIN y VALIDATION, el modelo final fue evaluado sobre:
-
-```text
-82,332 registros
-```
-
-del conjunto TEST oficial.
-
-Los resultados obtenidos (todas las métricas y la matriz de confusión) están documentadas dentro de:
-
-```text
-logs/re2_1/train_centralized.log
-```
-
----
-
-## 16. Cumplimiento del indicador de recall
-
-El RE2.1 establece como criterio mínimo:
-
-```text
-Recall para tráfico malicioso >= 80 %
-```
-
-El modelo final obtuvo:
-
-```text
-Recall = 92.06 %
-```
-
-Por tanto:
-
-```text
-92.06 % >= 80 %
-```
-
-y el criterio mínimo se considera satisfecho.
-
----
-
-## 18. Verificación del RE2.1
-
-El RE2.1 requiere un modelo funcional de detección de intrusiones capaz de diferenciar tráfico benigno y malicioso.
-
-La verificación se resume de la siguiente manera:
-
-| Criterio | Resultado | Estado |
-|---|---|---|
-| Clasificación binaria | Benigno / Malicioso | Cumplido |
-| Evaluación sobre TEST separado | 82,332 registros | Cumplido |
-| Accuracy reportado | 90.62 % | Cumplido |
-| Precision reportado | 91.00 % | Cumplido |
-| Recall reportado | 92.06 % | Cumplido |
-| F1-score reportado | 91.53 % | Cumplido |
-| Matriz de confusión | Generada | Cumplido |
-| Recall mínimo ≥ 80 % | 92.06 % | Cumplido |
-| Modelo entrenado almacenado | `.keras` | Cumplido |
-| Procedimiento reproducible | Scripts + configuración + resultados | Cumplido |
-
-Con base en estas evidencias, el **RE2.1 se considera implementado y verificado**.
-
----
-
-## 19. Archivos de resultados
-
-Los resultados del modelo centralizado entrenado con la configuración ganadora se almacenan en:
-
-```text
-results/re2/centralized/train
-```
-
-Mientras que los resultados obtenidos para escoger la mejor configuración se almancenan en:
-
-```text
-results/re2/centralized/tuning
-```
-
-
-### `metrics.json`
-
-Contiene la configuración y las métricas finales del modelo.
-
-Debe registrar, entre otros:
-
-```text
-dataset
-seed
-input_features
-arquitectura
-learning_rate
-batch_size
-epochs
-best_epoch
-classification_threshold
-accuracy
-precision
-recall
-f1_score
-roc_auc
-confusion_matrix
-```
-
-### `training_history.csv`
-
-Contiene la evolución del entrenamiento por epoch, incluyendo:
-
-```text
-loss
-accuracy
-precision
-recall
-```
-
-### `full_cv_matrix_search.csv`
-
-Contiene todos los resultados de las configuraciones C1–C5 evaluadas durante el ajuste de hiperparámetros.
-
-### `cv_training_epochs.csv`
-
-Contiene la evaluación de las configuraciones por cada fold ejecutado.
-
-### `best_config.json`
-
-Contiene la configuración seleccionada durante el proceso de tuning.
-
----
-
-## 20. Artefactos generados
-
-### Modelo entrenado
-
-```text
-artifacts/models/centralized/unsw_nb15_baseline.keras
-```
-
-Este archivo contiene los pesos y la arquitectura entrenada del modelo.
-
-### Predicciones
-
-```text
-artifacts/predictions/centralized_predictions.csv
-```
-
-Contiene para cada registro del conjunto TEST:
-
-```text
-real
-probability
-prediction
-```
-
----
-
-## 21. Reproducción del RE2.1
-
-Los comandos deben ejecutarse desde la raíz del repositorio.
-
-### Paso 1 – Activar el entorno
-
-Ejemplo:
+Activar el entorno existente, adaptando la ruta si es necesario:
 
 ```bash
 source env_federado_tff/bin/activate
+python -c "import tensorflow, numpy, pandas, sklearn, joblib, matplotlib; print('Importaciones disponibles')"
 ```
 
-El mecanismo exacto puede variar dependiendo de la ubicación del entorno virtual.
-
-Las dependencias utilizadas por el proyecto se encuentran documentadas en:
-
-```text
-requirements/requirements_tff_cpu.txt
-requirements/requirements-lock.txt
-```
-
----
-
-### Paso 2 – Inspeccionar UNSW-NB15
+Colocar los dos CSV oficiales en `data/raw/unsw_nb15/`. Después ejecutar:
 
 ```bash
 python src/data/inspect_unsw.py
-```
-
-Este paso verifica la estructura y calidad inicial de los archivos originales.
-
----
-
-### Paso 3 – Preprocesar los datos
-
-```bash
 python src/data/preprocess_unsw.py
 ```
 
-Resultado esperado:
+Comprobar los tamaños y las 192 características esperadas. El script de validación presupone que ya existen `train.npz`, `validation.npz` y `test.npz`; no descarga ni preprocesa los datos.
 
-```text
-X_train:      (140272, 192)
-y_train:      (140272,)
-X_validation: (35069, 192)
-y_validation: (35069,)
-X_test:       (82332, 192)
-y_test:       (82332,)
+### 9.2 Ejecutar `validate_re2_1.sh`
+
+**El usuario puede ejecutar el siguiente script para reproducir el flujo y validar el resultado del RE2.1:**
+
+```bash
+bash scripts/validate_re2_1.sh
 ```
 
-Se generan:
+Antes de ejecutarlo, mantener en `src/models/centralized/tune_centralized.py`:
 
-```text
-train.npz
-validation.npz
-test.npz
-preprocessor.joblib
-metadata.json
+```python
+PLOT_ONLY = False
+EVALUATE_TEST = False
 ```
 
----
+El script comprueba esos valores y la presencia de las tres particiones. Luego:
 
-### Paso 4 – Ejecutar ajuste de hiperparámetros
+1. Ejecuta el tuning por CV, selecciona la configuración y genera automáticamente las figuras PNG/PDF.
+2. Entrena el baseline final sobre TRAIN + VALIDATION y lo evalúa en TEST.
+
+Guarda la salida en `logs/re2_1/tune_centralized.log` y `logs/re2_1/train_centralized.log`. No requiere cambiar manualmente `PLOT_ONLY` a mitad de la ejecución. Usa `set -euo pipefail` para detenerse ante errores, incluso cuando la salida pasa por `tee`.
+
+**Esta ejecución vuelve a entrenar y sobrescribe las salidas y logs correspondientes.** Antes de reproducir una corrida, conservar sus evidencias si se necesita mantener el resultado anterior. No utilizar sucesivas evaluaciones de TEST para elegir configuraciones.
+
+La finalización del script confirma que los comandos terminaron correctamente; **no comprueba automáticamente el indicador recall ≥ 0.80**. Para validar el resultado, revisar:
+
+- `results/re2/centralized/train/metrics.json`: evaluación sobre `test`, ambas clases en la matriz y presencia de las cuatro métricas requeridas.
+- `recall >= 0.80` para la clase maliciosa y matriz cuya suma sea 82,332 en el dataset documentado.
+- Configuración, umbral y hash coherentes con el JSON seleccionado.
+- Existencia del `.keras`, preprocesador y CSV de predicciones correspondientes a la corrida.
+
+### 9.3 Ejecución manual equivalente
+
+Con ambos flags en `False`, se pueden ejecutar las etapas por separado:
 
 ```bash
 python src/models/centralized/tune_centralized.py
-```
-
-Este procedimiento utiliza exclusivamente:
-
-```text
-TRAIN
-VALIDATION
-```
-
-y no utiliza TEST para seleccionar la configuración.
-
-Se generan:
-
-```text
-results/re2/centralized/tuning/
-├── best_config.json
-├── full_cv_matrix_search.csv
-├── cv_training_epochs.csv
-├── eligible_matrix.csv
-└── top_candidates_cv.csv
-```
-
----
-
-### Paso 5 – Entrenar y evaluar el modelo final
-
-```bash
 python src/models/centralized/train_centralized.py
 ```
 
-El resultado esperado debe ser cercano a:
+Si solo se desea reproducir el entrenamiento final con la configuración ya guardada, ejecutar únicamente el segundo comando, una vez preparados los datos. Esto evita repetir la selección, pero vuelve a generar el modelo y las métricas finales.
 
-```text
-Accuracy:  0.9061
-Precision: 0.9100
-Recall:    0.9206
-F1-score:  0.9152
-ROC-AUC:   0.9762
-```
+Para regenerar exclusivamente las figuras de CV existentes, establecer temporalmente `PLOT_ONLY=True` y ejecutar el selector. Este modo lee los CSV y el JSON guardados, no reentrena ni modifica `best_config.json`. Restablecerlo a `False` antes de usar `validate_re2_1.sh`.
 
-y una matriz de confusión equivalente a:
+### 9.4 Reproducibilidad numérica
 
-```text
-[[32873 4127]
- [ 3598 41734]]
-```
+Las semillas, configuración, particiones y preprocesador permiten reconstruir el procedimiento. Las versiones de dependencias, hardware y operaciones numéricas pueden producir variaciones; el código no fuerza determinismo completo de todas las operaciones. Deben conservarse las métricas de cada corrida y comprobar el cumplimiento con sus resultados reales, sin exigir igualdad decimal exacta ni asumir que cualquier variación será necesariamente pequeña.
 
-Debido a aspectos asociados a ejecución numérica, plataforma o dependencias, pueden existir pequeñas variaciones en las últimas cifras decimales.
+## 10. Verificación de los indicadores del RE2.1
 
----
+| Indicador de la tesis | Evidencia registrada | Resultado |
+|---|---|---|
+| Evaluación sobre prueba separada y exactamente dos clases | Código de selección/entrenamiento; `evaluation_dataset: test`; matriz 2 × 2 | Cumplido en el procedimiento documentado |
+| Accuracy, precision, recall y F1-score, además de matriz de confusión | `train/metrics.json` y log de entrenamiento | Cumplido |
+| Recall malicioso ≥ 80 % sobre prueba | Recall = 92.06 % | Cumplido |
 
-## 22. Reproducibilidad
+Los resultados versionados respaldan el cumplimiento de los indicadores. La verificación completa del entregable **modelo entrenado** requiere disponer del `.keras` y de los datos/preprocesador asociados, que no están incluidos en Git. Su presencia no debe darse por comprobada únicamente porque el código contenga una llamada a `model.save`.
 
-Para favorecer la reproducibilidad se utiliza:
+## 11. Relación con RE2.2 y comparación del RE2.3
 
-```text
-SEED = 42
-```
+El baseline aporta arquitectura, preprocesamiento, configuración congelada y métricas de referencia. Para comparar los enfoques se debe conservar el mismo TEST, representación y orden de características, codificación de clases, regla de decisión y cálculo de métricas.
 
-aplicado a:
+**El centralizado documentado entrena con TRAIN + VALIDATION.** Para una comparación con igual disponibilidad de ejemplos, las particiones locales del entrenamiento federado final deben cubrir ese mismo conjunto de desarrollo, sin duplicar registros entre clientes. No corresponde exigir que el federado use únicamente TRAIN y, al mismo tiempo, afirmar igualdad de datos de entrenamiento con este baseline.
 
-```text
-Python random
-NumPy
-TensorFlow
-```
+Si el procedimiento federado reserva VALIDATION para seleccionar rondas o hiperparámetros, se debe distinguir esa fase de selección del entrenamiento final. Si se compara un modelo federado entrenado solo con TRAIN, hay que explicitar la diferencia o generar un baseline centralizado con el mismo presupuesto de datos. TEST nunca debe incorporarse a los clientes ni usarse para ajustar la configuración.
 
-Además:
+Utilizar la misma arquitectura y el umbral **0.80** permite controlar esas variables, pero no basta por sí solo para demostrar equivalencia experimental: deben documentarse también los datos usados, particionado, rondas, épocas locales, semillas y criterio de selección del modelo global. Este documento no certifica por sí mismo el cumplimiento del RE2.2 o RE2.3.
 
-- TRAIN, VALIDATION y TEST se almacenan de manera explícita;
-- el preprocesador entrenado se conserva mediante `joblib`;
-- los hiperparámetros quedan registrados;
-- el threshold queda registrado;
-- el historial de entrenamiento se conserva;
-- las predicciones sobre TEST se almacenan;
-- el modelo final se guarda en formato Keras.
+## 12. Estado y límites de la revisión
 
-Esto permite reconstruir el procedimiento desde los archivos originales de UNSW-NB15 hasta la obtención del modelo final.
+**RE2.1: implementado, con indicadores satisfechos según las métricas versionadas.**
 
----
+La revisión contrastó documentación, scripts centralizados, preprocesamiento, configuración, tablas de CV, métricas, historial y log. Se corrigieron las rutas base de los scripts alojados en `src/models/centralized/` y se actualizó el script de validación para usar la generación automática de figuras.
 
-## 23. Consideraciones metodológicas
-
-### Separación de TEST
-
-El conjunto TEST no debe utilizarse para realizar cambios posteriores en:
-
-```text
-arquitectura
-dropout
-learning rate
-batch size
-threshold
-```
-
-Las decisiones de configuración fueron realizadas utilizando VALIDATION.
-
-TEST constituye el conjunto común que deberá conservarse para la futura comparación entre:
-
-```text
-modelo centralizado
-vs.
-modelo federado
-```
-
-en el RE2.3.
-
-### Mismo preprocesamiento
-
-El modelo federado desarrollado en el RE2.2 deberá utilizar una representación compatible con el modelo centralizado.
-
-Por tanto, las particiones locales de los clientes deberán derivarse del conjunto:
-
-```text
-TRAIN
-```
-
-procesado bajo el mismo procedimiento definido en este resultado.
-
-VALIDATION y TEST no deberán formar parte de las particiones locales de entrenamiento de los clientes.
-
-### Threshold
-
-El threshold final debe ser el seleccionado mediante la selección de hiperparámetros
-
-Este valor debe mantenerse documentado para garantizar una comparación consistente con el modelo federado.
-
----
-
-## 24. Relación con RE2.2
-
-El RE2.1 entrega los elementos necesarios para la siguiente etapa:
-
-```text
-Modelo IDS centralizado
-        │
-        ├── arquitectura
-        ├── características de entrada
-        ├── preprocesamiento
-        ├── configuración
-        └── métricas de referencia
-                │
-                ↓
-              RE2.2
-     Integración con aprendizaje
-             federado
-```
-
-En el RE2.2 se deberá:
-
-1. distribuir TRAIN entre clientes federados;
-2. mantener los datos locales sin centralizarlos durante el entrenamiento federado;
-3. adaptar la arquitectura Keras al mecanismo implementado con TensorFlow Federated;
-4. ejecutar FedAvg;
-5. obtener un modelo global federado;
-6. evaluar dicho modelo utilizando el mismo conjunto TEST empleado en este resultado.
-
-La implementación del RE2.2 no debe modificar retrospectivamente la configuración centralizada seleccionada en RE2.1.
-
----
-
-## 25. Estado del resultado
-
-```text
-RE2.1: COMPLETADO
-```
-
-Evidencias principales:
-
-```text
-Código fuente de inspección                ✓
-Código fuente de preprocesamiento          ✓
-TRAIN / VALIDATION / TEST separados        ✓
-Preprocesador persistido                   ✓
-Modelo centralizado implementado           ✓
-Tuning de hiperparámetros                  ✓
-Selección de threshold                     ✓
-Evaluación mediante 4 métricas             ✓
-Matriz de confusión                        ✓
-Recall malicioso >= 80 %                   ✓
-Modelo entrenado almacenado                ✓
-Predicciones almacenadas                   ✓
-Configuración reproducible                 ✓
-```
-
-El modelo centralizado obtenido queda congelado como **baseline de referencia del OE2** para su posterior integración y comparación con el enfoque federado.
+No se repitió el entrenamiento completo durante esta revisión: el repositorio no incluye los datos originales/procesados ni el modelo final. Los resultados numéricos aquí presentados son los de la corrida guardada. Permanecen explícitas la limitación del preprocesamiento previo a CV y la diferencia de FPR entre CV y TEST.

@@ -6,367 +6,274 @@ Repositorio de desarrollo de la tesis:
 
 Proyecto desarrollado en la especialidad de **Ingeniería Informática de la Pontificia Universidad Católica del Perú (PUCP)**.
 
----
-
 ## Descripción
 
-El proyecto investiga el uso de aprendizaje federado como mecanismo de colaboración entre múltiples participantes que requieren construir conocimiento compartido sin centralizar directamente sus datos locales de entrenamiento.
+Este proyecto explora el aprendizaje federado como mecanismo para construir colaborativamente un modelo de detección de intrusiones, manteniendo los datos de entrenamiento asociados a cada participante.
 
-La propuesta utiliza una arquitectura cliente-servidor en la que los clientes realizan operaciones de entrenamiento sobre sus propios datos, mientras que un servidor agregador coordina el proceso y mantiene el estado del modelo global.
+La propuesta utiliza una arquitectura cliente-servidor: los clientes entrenan sobre sus particiones locales y un servidor agregador combina sus actualizaciones para obtener un modelo global mediante **Federated Averaging (FedAvg)**.
 
-El mecanismo de agregación base utilizado es **Federated Averaging (FedAvg)**.
-
----
+El desarrollo comprende la implementación del mecanismo federado, la construcción de un modelo de detección sobre **UNSW-NB15**, su integración y evaluación experimental, y la elaboración de lineamientos técnicos para orientar su despliegue en microempresas.
 
 ## Objetivo general
 
-Diseñar e implementar un prototipo basado en una arquitectura de aprendizaje federado para la detección colaborativa de intrusiones mediante el análisis de tráfico de red en microempresas, permitiendo aprovechar el aprendizaje distribuido sin centralizar los datos locales.
+Diseñar e implementar un prototipo basado en una arquitectura de aprendizaje federado para la detección colaborativa de intrusiones mediante el análisis de tráfico de red en microempresas, permitiendo aprovechar el aprendizaje distribuido sin centralizar los datos locales de entrenamiento.
 
----
+## Líneas de trabajo
 
-## Arquitectura general
+El proyecto se organiza en tres líneas principales:
 
-La arquitectura propuesta sigue un esquema cliente-servidor.
-
-```text
-                    ┌─────────────────────┐
-                    │  Servidor agregador │
-                    │                     │
-                    │    Modelo global    │
-                    │         +           │
-                    │       FedAvg        │
-                    └──────────┬──────────┘
-                               │
-                     estado del modelo
-                ┌──────────────┴──────────────┐
-                │                             │
-                ▼                             ▼
-        ┌──────────────┐              ┌──────────────┐
-        │   Cliente A  │              │   Cliente B  │
-        │              │              │              │
-        │ Datos locales│              │ Datos locales│
-        │ Entrenamiento│              │ Entrenamiento│
-        │    local     │              │    local     │
-        └──────┬───────┘              └──────┬───────┘
-               │                             │
-               └───── actualizaciones ───────┘
-                               │
-                               ▼
-                             FedAvg
-                               │
-                               ▼
-                      Nuevo modelo global
-```
-
-Los datos utilizados durante el entrenamiento permanecen asociados a cada participante, mientras el servidor mantiene y actualiza el estado global del modelo.
-
----
+1. **Arquitectura y aprendizaje federado:** especificación de requisitos, diseño de componentes e implementación del mecanismo de entrenamiento colaborativo.
+2. **Detección de intrusiones y evaluación:** preparación de datos, construcción de una línea base centralizada, integración federada y comparación experimental.
+3. **Lineamientos técnicos:** definición de condiciones mínimas de configuración, despliegue y gestión de accesos para el contexto de microempresas.
 
 ## Estado del proyecto
 
-| Etapa | Estado |
+| Componente | Estado | Avance |
+|---|---|---|
+| Requisitos y diseño de la arquitectura | Documentados en la tesis | Definición del alcance, componentes y criterios de verificación |
+| Mecanismo base de aprendizaje federado | Implementado y verificado | Clientes simulados, servidor agregador, rondas de entrenamiento y FedAvg |
+| Preparación de UNSW-NB15 | Implementada | Inspección, transformación y almacenamiento de particiones |
+| Modelo centralizado de detección | Implementado y evaluado | Selección de configuración, entrenamiento y evaluación sobre prueba |
+| Integración del modelo con el mecanismo federado | En desarrollo | Consolidación del entrenamiento y evaluación del modelo global |
+| Comparación centralizado–federado | Pendiente de consolidación | Evaluación comparable y análisis de diferencias |
+| Lineamientos técnicos de despliegue y accesos | Pendientes | Recomendaciones para el contexto de aplicación |
+
+Esta tabla refleja el avance del proyecto y se actualizará conforme se consoliden sus componentes y evidencias.
+
+La presencia de archivos experimentales, pruebas o resultados de etapas posteriores no implica que esas etapas estén finalizadas. Su estado se determina a partir de la implementación vigente, su documentación y sus verificaciones.
+
+## Arquitectura general
+
+La arquitectura contempla los siguientes componentes:
+
+| Componente | Responsabilidad |
 |---|---|
-| Especificación de requisitos del entorno federado | Completada |
-| Diseño de la arquitectura federada | Completada |
-| Prototipo base del mecanismo federado | Completado |
-| Integración con componentes posteriores del proyecto | Pendiente |
-| Evaluación experimental final | Pendiente |
-| Lineamientos técnicos de despliegue | Pendiente |
+| Clientes federados | Mantener sus particiones locales y ejecutar el entrenamiento local |
+| Servidor agregador | Coordinar las rondas y actualizar el modelo global mediante FedAvg |
+| Modelo de detección | Clasificar registros de tráfico como benignos o maliciosos |
+| Preparación de datos | Producir entradas compatibles con los modelos y conservar el preprocesamiento |
+| Evaluación experimental | Calcular métricas y comparar los modelos bajo condiciones documentadas |
 
-El estado de esta tabla se actualizará conforme avance el desarrollo de la tesis.
+En cada ronda, los clientes reciben el estado del modelo global, realizan entrenamiento local y producen actualizaciones. El servidor agrega esas actualizaciones para construir el siguiente estado global.
 
----
+La implementación actual utiliza **clientes simulados en un entorno controlado**. La localidad de los datos se representa mediante las ubicaciones lógicas `CLIENTS` y `SERVER` de TensorFlow Federated.
 
-## Implementación disponible
+Esta separación lógica no equivale por sí sola a un despliegue en equipos independientes ni acredita mecanismos adicionales como privacidad diferencial o agregación segura.
 
-Actualmente el repositorio contiene una implementación funcional del mecanismo base de aprendizaje federado.
+## Datos y enfoque de evaluación
 
-El prototipo permite:
+El conjunto de datos utilizado para la detección de intrusiones es **UNSW-NB15**.
 
-- simular clientes federados;
-- mantener particiones locales independientes;
-- ejecutar entrenamiento local;
-- inicializar y mantener un modelo global;
-- coordinar rondas mediante TensorFlow Federated;
-- agregar actualizaciones mediante FedAvg;
-- ejecutar rondas federadas consecutivas;
-- registrar métricas y logs;
-- verificar la localidad lógica de los datos mediante las ubicaciones `CLIENTS` y `SERVER`.
+El problema se plantea como clasificación binaria:
 
-La documentación técnica completa de este resultado se encuentra en:
+| Etiqueta | Clase |
+|---|---|
+| `0` | Tráfico benigno |
+| `1` | Tráfico malicioso |
 
-```text
-docs/re1/re1_3_prototipo_federado.md
-```
+El flujo experimental contempla:
 
----
+1. Inspección y preparación de los datos.
+2. Selección de la configuración del modelo utilizando datos de desarrollo.
+3. Entrenamiento del modelo centralizado de referencia.
+4. Integración y entrenamiento del modelo federado.
+5. Evaluación sobre un conjunto de prueba separado del entrenamiento.
+6. Comparación e interpretación de resultados.
+
+Las métricas principales son **accuracy, precision, recall y F1-score**, acompañadas de una matriz de confusión. Los análisis complementarios y las condiciones exactas de cada experimento se documentan por separado.
+
+Las comparaciones deben mantener un conjunto de prueba común y declarar los datos de entrenamiento, el preprocesamiento, la configuración y los criterios de selección utilizados.
 
 ## Tecnologías principales
 
-El proyecto utiliza principalmente:
-
 | Tecnología | Uso |
 |---|---|
-| Python | Lenguaje principal |
-| TensorFlow | Construcción y entrenamiento de modelos |
-| TensorFlow Federated | Coordinación del aprendizaje federado |
-| NumPy | Operaciones numéricas |
-| WSL2 | Entorno Linux sobre Windows |
-| Ubuntu | Entorno de ejecución |
-| Visual Studio Code | Desarrollo y depuración |
+| Python | Implementación y automatización |
+| TensorFlow / Keras | Construcción, entrenamiento e inferencia de modelos |
+| TensorFlow Federated | Simulación y coordinación del aprendizaje federado |
+| NumPy y pandas | Procesamiento y análisis de datos |
+| scikit-learn | Preprocesamiento, particionado y métricas |
+| Matplotlib | Generación de figuras |
+| joblib | Persistencia del preprocesador |
+| Bash | Ejecución de procedimientos de validación |
 | Git | Control de versiones |
 
-Otras herramientas serán incorporadas y documentadas conforme avance la implementación de los distintos resultados del proyecto.
+El desarrollo se realiza en un entorno Linux sobre WSL2.
 
----
+## Organización del repositorio
 
-## Entorno actualmente validado
-
-| Componente | Versión |
+| Directorio | Contenido |
 |---|---|
-| Ubuntu | 22.04.3 LTS |
-| WSL | WSL2 |
-| Python | 3.11.15 |
-| TensorFlow | 2.14.1 |
-| TensorFlow Federated | 0.87.0 |
-| NumPy | 1.25.2 |
-| SciPy | 1.9.3 |
+| `src/` | Código fuente de preparación de datos, modelos y entrenamiento |
+| `tests/` | Pruebas y verificaciones de componentes |
+| `scripts/` | Automatización de procedimientos de ejecución y validación |
+| `docs/` | Documentación técnica de los resultados desarrollados |
+| `requirements/` | Referencias de dependencias del entorno |
+| `results/` | Métricas, historiales, tablas y figuras |
+| `logs/` | Registros de ejecución |
+| `data/` | Datos originales y procesados disponibles localmente |
+| `artifacts/` | Modelos entrenados, predicciones y otros artefactos generados |
 
-Las dependencias completas se encuentran en:
+Dentro del código actualmente documentado:
 
-```text
-requirements/
-```
+- `src/data/` contiene la inspección y el preprocesamiento de UNSW-NB15.
+- `src/federated_re1_3/` contiene el prototipo base del mecanismo federado.
+- `src/models/centralized/` contiene la selección de configuración y el entrenamiento centralizado.
 
----
+Los directorios de datos y determinados artefactos se generan o preparan localmente y están excluidos del control de versiones. Por ello, pueden no aparecer inmediatamente después de clonar el repositorio.
 
-## Estructura principal
+## Preparación del entorno
 
-La estructura general del repositorio es:
+Los comandos siguientes se ejecutan desde la raíz del repositorio en Bash, por ejemplo, en Linux o WSL2.
 
-```text
-AprendizajeFederado/
-├── artifacts
-│   ├── models
-│   │   └── centralized
-│   ├── predictions
-│   └── runs
-├── data
-│   ├── processed
-│   │   └── unsw_nb15
-│   └── raw
-│       └── unsw_nb15
-├── docs
-├── logs
-├── requirements
-├── results
-│   ├── re1_3
-│   └── re2
-│       └── centralized
-│           └── tuning
-├── scripts
-├── src
-│   ├── data
-│   ├── federated_re1_3
-│   └── models
-└── tests
-```
-
-Algunos directorios se encuentran reservados para componentes correspondientes a etapas posteriores del proyecto y serán documentados cuando formen parte de resultados formalmente implementados.
-
----
-
-## Organización del código
-
-### `src/federated/_re1_3`
-
-Contiene el mecanismo base de aprendizaje federado a modo de prueba.
-
-```text
-client_data.py
-```
-
-Gestiona las particiones locales de los clientes y su conversión a datasets de TensorFlow.
-
-```text
-model.py
-```
-
-Define el modelo utilizado por el proceso federado.
-
-```text
-server.py
-```
-
-Construye el proceso de agregación y mantiene la configuración de FedAvg.
-
-```text
-training.py
-```
-
-Integra clientes, servidor y rondas de entrenamiento.
-
-### `tests/test_federated_re1_3`
-
-Contiene las pruebas funcionales utilizadas para comprobar progresivamente los componentes.
-
-### `logs/`
-
-Contiene las evidencias generadas durante las ejecuciones.
-
-### `scripts/`
-
-Contiene scripts de validación y automatización del proyecto.
-
-### `requirements/`
-
-Contiene las dependencias requeridas para reproducir el entorno.
-
-### `docs/`
-
-Contiene documentación técnica específica de los resultados implementados.
-
----
-
-## Instalación
-
-### 1. Clonar el repositorio
+### 1. Obtener el proyecto
 
 ```bash
 git clone https://github.com/yisus0106/AprendizajeFederado.git
 cd AprendizajeFederado
 ```
 
-### 2. Crear un entorno virtual
+Utilizar la rama o revisión que contenga el componente que se desea reproducir. La rama predeterminada puede no incluir los avances más recientes.
+
+### 2. Crear y activar un entorno virtual
+
+El entorno registrado utiliza Python 3.11.
 
 ```bash
-python3 -m venv env_federado_tff
-```
-
-### 3. Activar el entorno
-
-Linux / WSL2:
-
-```bash
+python3.11 -m venv env_federado_tff
 source env_federado_tff/bin/activate
 ```
 
-### 4. Instalar dependencias
+Si el entorno ya existe, basta con activarlo utilizando su ruta correspondiente.
 
-```bash
-pip install -r requirements/requirements-lock.txt
+### 3. Instalar las dependencias
+
+La referencia principal de dependencias se encuentra en:
+
+```text
+requirements/requirements-lock.txt
 ```
 
----
+Para intentar reconstruir el entorno registrado:
 
-## Verificación del entorno
+```bash
+python -m pip install -r requirements/requirements-lock.txt
+```
 
-Ejecutar:
+El proyecto también conserva `requirements/requirements_tff_cpu.txt` como referencia del entorno federado.
+
+Los archivos incluyen dependencias específicas de plataforma, entre ellas un wheel de JAX para CPython 3.11/Linux x86_64. La instalación en otras plataformas puede requerir ajustes. La reconstrucción completa desde un entorno limpio debe verificarse antes de considerar reproducida una ejecución.
+
+### 4. Verificar las importaciones y versiones
 
 ```bash
 python tests/verify_environment.py
 ```
 
-Una ejecución correcta debe finalizar con:
+El script muestra las versiones principales y, si las importaciones finalizan correctamente, imprime:
 
 ```text
 Estado: ENTORNO OPERATIVO
 ```
 
----
-
-## Ejecución del mecanismo federado
-
-Para ejecutar la prueba principal de entrenamiento federado:
+Para comprobar además las bibliotecas utilizadas en el procesamiento de datos y las figuras:
 
 ```bash
-python -m tests.test_federated_re1_3.test_federated_training
+python -c "import pandas, sklearn, joblib, matplotlib; print('Importaciones disponibles')"
 ```
 
-La configuración actualmente utilizada para la validación funcional es:
+Estas comprobaciones verifican la disponibilidad de las bibliotecas; las pruebas de cada componente validan su funcionamiento.
+
+## Preparación de los datos
+
+Para ejecutar los experimentos de detección, colocar los archivos originales en:
 
 ```text
-Clientes:            2
-Ejemplos por cliente: 12
-Rondas federadas:     5
+data/raw/unsw_nb15/UNSW_NB15_training-set.csv
+data/raw/unsw_nb15/UNSW_NB15_testing-set.csv
 ```
 
-La finalidad de esta prueba es comprobar el funcionamiento del mecanismo federado y no evaluar todavía el desempeño final de la aplicación de ciberseguridad.
-
----
-
-## Validación completa del prototipo base
-
-Para ejecutar secuencialmente las principales verificaciones:
+Después ejecutar:
 
 ```bash
-./scripts/validate_re1_3.sh
+python src/data/inspect_unsw.py
+python src/data/preprocess_unsw.py
 ```
 
-La evidencia generada se encuentra en:
+El preprocesamiento genera las particiones, el transformador y los metadatos en:
 
 ```text
-logs/
+data/processed/unsw_nb15/
 ```
 
-La documentación detallada de las pruebas está disponible en:
+Los datos originales y procesados no se descargan al clonar el repositorio. Los requisitos y las transformaciones aplicadas se describen en la documentación técnica del modelo de detección.
 
-```text
-docs/re1/re1_3_prototipo_federado.md
-```
+## Ejecución y validación
 
----
+Los procedimientos disponibles se organizan por componente:
 
-## Documentación
+| Componente | Comando | Requisito previo |
+|---|---|---|
+| Entorno federado | `python tests/verify_environment.py` | Entorno activado y dependencias instaladas |
+| Mecanismo federado base | `bash scripts/validate_re1_3.sh` | Entorno federado operativo |
+| Modelo centralizado de detección | `bash scripts/validate_re2_1.sh` | Entorno operativo y datos preprocesados |
 
-| Documento | Descripción |
+El script del mecanismo federado base ejecuta verificaciones de clientes, servidor, entrenamiento y localidad lógica de los datos.
+
+El script del modelo centralizado ejecuta la selección de configuración, genera las figuras y realiza el entrenamiento y la evaluación final. Sus opciones y criterios de revisión se explican en la documentación correspondiente.
+
+**Los procedimientos de entrenamiento pueden regenerar y sobrescribir resultados, modelos y logs.** Conservar las evidencias de una corrida antes de repetirla cuando sea necesario mantener su trazabilidad.
+
+Las pruebas de componentes todavía en desarrollo pueden depender de módulos que estén siendo reorganizados. Para reproducir los componentes consolidados, utilizar los procedimientos descritos en sus documentos técnicos.
+
+## Documentación técnica
+
+| Documento | Contenido |
 |---|---|
-| `README.md` | Visión general y estado del proyecto |
-| `docs/re1/re1_3_prototipo_federado.md` | Implementación, reproducción y validación técnica de RE1.3 |
-| `requirements/` | Dependencias del entorno |
-| `logs/` | Evidencias de ejecución |
+| [Prototipo del mecanismo federado](docs/re1/re1_3_prototipo_federado.md) | Implementación, ejecución y verificación del mecanismo base |
+| [Modelo centralizado de detección](docs/re2/re2_1_modelo_centralizado.md) | Dataset, preprocesamiento, selección, entrenamiento, evaluación y reproducción |
+| [Dependencias](requirements/) | Referencias del entorno de ejecución |
+| [Resultados](results/) | Métricas, tablas, historiales y figuras almacenadas |
+| [Logs](logs/) | Evidencias de ejecución |
 
-Nuevos documentos técnicos serán añadidos a `docs/` conforme se implementen los siguientes resultados de la tesis.
+La documentación de integración federada, comparación experimental y lineamientos técnicos se incorporará conforme se consoliden esas etapas.
 
----
+Este README mantiene la visión general del proyecto. Las arquitecturas concretas de los modelos, hiperparámetros, métricas numéricas y verificaciones de cada resultado se desarrollan en `docs/`.
 
-## Reproducibilidad
+## Reproducibilidad y trazabilidad
 
-El proyecto busca mantener trazabilidad entre:
+Cada resultado experimental debe poder relacionarse con:
 
-```text
-Código fuente
-     +
-Dependencias
-     +
-Pruebas
-     +
-Logs
-     +
-Documentación
-```
+- La revisión del código utilizada.
+- El entorno y las versiones de dependencias.
+- Los datos y el preprocesamiento aplicado.
+- La configuración y las semillas de ejecución.
+- El procedimiento de entrenamiento y evaluación.
+- Los modelos, predicciones, métricas y logs generados.
 
-Las versiones utilizadas se registran en `requirements/`, mientras que las principales pruebas y resultados de ejecución se conservan en `tests/` y `logs/`.
+El repositorio conserva código, documentación y determinadas evidencias. Los datos y modelos excluidos mediante `.gitignore` deben recuperarse o regenerarse para reproducir completamente una ejecución.
 
-La instalación completa desde un entorno limpio deberá ser verificada nuevamente antes de publicar la versión final del proyecto.
+Las semillas favorecen la reproducibilidad, pero no garantizan igualdad numérica exacta entre plataformas. Cualquier nueva ejecución debe evaluarse a partir de sus propios resultados.
 
----
+## Alcance y limitaciones
 
-## Alcance actual
+El proyecto tiene carácter académico y experimental:
 
-El repositorio corresponde a un proyecto académico y experimental.
+- Utiliza clientes simulados y un dataset de referencia.
+- La evaluación actual se realiza en un entorno controlado.
+- No representa todavía un sistema de detección desplegado en producción.
+- Los resultados obtenidos sobre UNSW-NB15 no demuestran por sí solos desempeño equivalente sobre tráfico real de microempresas.
+- Las condiciones de comunicación, seguridad y operación deben analizarse antes de trasladar el prototipo a una infraestructura distribuida real.
 
-El prototipo actual:
+Las limitaciones específicas de cada experimento se registran en su documentación técnica.
 
-- utiliza clientes simulados;
-- se ejecuta dentro de un entorno controlado;
-- no representa todavía un despliegue productivo;
-- no supone infraestructura instalada en microempresas reales;
-- utiliza el aprendizaje federado como base para etapas posteriores del proyecto.
+## Próximos hitos
 
-Las capacidades adicionales se incorporarán progresivamente conforme se desarrollen los siguientes resultados definidos en la tesis.
-
----
+- Consolidar la integración entre el modelo de detección y el mecanismo federado.
+- Documentar el entrenamiento y la evaluación del modelo global.
+- Completar la comparación con la línea base centralizada.
+- Elaborar los lineamientos técnicos de despliegue y gestión de accesos.
+- Verificar la reproducción de los componentes desde un entorno limpio.
 
 ## Autor
 
