@@ -1,6 +1,6 @@
 import numpy as np
 
-from src.federated.client_data import (
+from src.federated_re1_3.client_data import (
     ClientPartition,
     create_synthetic_client_partitions,
 )

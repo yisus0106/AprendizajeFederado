@@ -96,7 +96,7 @@ El prototipo permite:
 La documentación técnica completa de este resultado se encuentra en:
 
 ```text
-docs/re1_3_prototipo_federado.md
+docs/re1/re1_3_prototipo_federado.md
 ```
 
 ---
@@ -158,7 +158,6 @@ AprendizajeFederado/
 │       └── unsw_nb15
 ├── docs
 ├── logs
-├── notebooks
 ├── requirements
 ├── results
 │   ├── re1_3
@@ -168,9 +167,8 @@ AprendizajeFederado/
 ├── scripts
 ├── src
 │   ├── data
-│   ├── federated
+│   ├── federated_re1_3
 │   └── models
-│       └── centralized
 └── tests
 ```
 
@@ -180,9 +178,9 @@ Algunos directorios se encuentran reservados para componentes correspondientes a
 
 ## Organización del código
 
-### `src/federated/`
+### `src/federated/_re1_3`
 
-Contiene el mecanismo base de aprendizaje federado.
+Contiene el mecanismo base de aprendizaje federado a modo de prueba.
 
 ```text
 client_data.py
@@ -208,7 +206,7 @@ training.py
 
 Integra clientes, servidor y rondas de entrenamiento.
 
-### `tests/`
+### `tests/test_federated_re1_3`
 
 Contiene las pruebas funcionales utilizadas para comprobar progresivamente los componentes.
 
@@ -282,7 +280,7 @@ Estado: ENTORNO OPERATIVO
 Para ejecutar la prueba principal de entrenamiento federado:
 
 ```bash
-python -m tests.test_federated_training
+python -m tests.test_federated_re1_3.test_federated_training
 ```
 
 La configuración actualmente utilizada para la validación funcional es:
@@ -314,7 +312,7 @@ logs/
 La documentación detallada de las pruebas está disponible en:
 
 ```text
-docs/re1_3_prototipo_federado.md
+docs/re1/re1_3_prototipo_federado.md
 ```
 
 ---
@@ -324,7 +322,7 @@ docs/re1_3_prototipo_federado.md
 | Documento | Descripción |
 |---|---|
 | `README.md` | Visión general y estado del proyecto |
-| `docs/re1_3_prototipo_federado.md` | Implementación, reproducción y validación técnica de RE1.3 |
+| `docs/re1/re1_3_prototipo_federado.md` | Implementación, reproducción y validación técnica de RE1.3 |
 | `requirements/` | Dependencias del entorno |
 | `logs/` | Evidencias de ejecución |
 

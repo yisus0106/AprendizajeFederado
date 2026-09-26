@@ -1,4 +1,4 @@
-from src.federated.training import execute_federated_training
+from src.federated_re1_3.training import execute_federated_training
 
 
 def main():

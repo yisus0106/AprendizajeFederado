@@ -1,7 +1,7 @@
 import numpy as np
 
-from src.federated.client_data import create_synthetic_client_partitions
-from src.federated.server import build_federated_process
+from src.federated_re1_3.client_data import create_synthetic_client_partitions
+from src.federated_re1_3.server import build_federated_process
 
 
 def prepare_federated_clients(

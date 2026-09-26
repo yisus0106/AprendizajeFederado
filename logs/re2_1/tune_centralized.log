@@ -1,107 +1,20 @@
-======================================================================
-AJUSTE DE HIPERPARÁMETROS - UNSW-NB15
-======================================================================
-
-X_train:      (140272, 192)
-X_validation: (35069, 192)
-
-TEST no será utilizado durante el ajuste.
-
-======================================================================
-Configuración C0
-======================================================================
-Capas: [64, 32]
-Dropout: 0.2
-Learning rate: 0.001
-Accuracy:  0.9462
-Precision: 0.9494
-Recall:    0.9729
-F1-score:  0.9610
-FPR:       0.1106
-AUC:       0.9902
-Mejor epoch: 15
-
-======================================================================
-Configuración C1
-======================================================================
-Capas: [32, 16]
-Dropout: 0.2
-Learning rate: 0.001
-Accuracy:  0.9460
-Precision: 0.9510
-Recall:    0.9707
-F1-score:  0.9608
-FPR:       0.1065
-AUC:       0.9896
-Mejor epoch: 19
-
-======================================================================
-Configuración C2
-======================================================================
-Capas: [64, 32]
-Dropout: 0.3
-Learning rate: 0.001
-Accuracy:  0.9462
-Precision: 0.9489
-Recall:    0.9733
-F1-score:  0.9610
-FPR:       0.1117
-AUC:       0.9901
-Mejor epoch: 15
-
-======================================================================
-Configuración C3
-======================================================================
-Capas: [64, 32]
-Dropout: 0.2
-Learning rate: 0.0005
-Accuracy:  0.9453
-Precision: 0.9519
-Recall:    0.9685
-F1-score:  0.9601
-FPR:       0.1044
-AUC:       0.9897
-Mejor epoch: 19
-
-======================================================================
-Configuración C4
-======================================================================
-Capas: [128, 64]
-Dropout: 0.2
-Learning rate: 0.001
-Accuracy:  0.9463
-Precision: 0.9556
-Recall:    0.9659
-F1-score:  0.9608
-FPR:       0.0955
-AUC:       0.9902
-Mejor epoch: 19
-
-======================================================================
-MEJOR CONFIGURACIÓN
-======================================================================
-{'id': 'C0', 'hidden_layers': [64, 32], 'dropout': 0.2, 'learning_rate': 0.001}
-F1 máximo observado: 0.961046
-Tolerancia de F1: 0.0010
-
-Thresholds considerados prácticamente equivalentes:
- threshold  f1_score   recall  false_positive_rate
-      0.55  0.960736 0.965143             0.093839
-      0.50  0.960998 0.972936             0.110625
-      0.45  0.961046 0.982446             0.132321
-      0.40  0.960164 0.991621             0.157500
-
-======================================================================
-THRESHOLD SELECCIONADO
-======================================================================
-Threshold: 0.55
-Accuracy:  0.9463
-Precision: 0.9564
-Recall:    0.9651
-F1-score:  0.9607
-FPR:       0.0938
-
-Archivos generados:
-results/re2/centralized/tuning/hyperparameter_search.csv
-results/re2/centralized/tuning/threshold_search.csv
-results/re2/centralized/tuning/best_config.json
+CV con 3 folds sobre train+validation: (175341, 192); test aislado durante selección.
+C1_Nano | fold 1/3 | best_epoch=19
+C1_Nano | fold 2/3 | best_epoch=17
+C1_Nano | fold 3/3 | best_epoch=19
+C2_Micro_Base | fold 1/3 | best_epoch=19
+C2_Micro_Base | fold 2/3 | best_epoch=17
+C2_Micro_Base | fold 3/3 | best_epoch=20
+C3_Micro_Robust_FL | fold 1/3 | best_epoch=11
+C3_Micro_Robust_FL | fold 2/3 | best_epoch=20
+C3_Micro_Robust_FL | fold 3/3 | best_epoch=20
+C4_Micro_Slow_FL | fold 1/3 | best_epoch=19
+C4_Micro_Slow_FL | fold 2/3 | best_epoch=20
+C4_Micro_Slow_FL | fold 3/3 | best_epoch=20
+C5_Pyme_Max | fold 1/3 | best_epoch=20
+C5_Pyme_Max | fold 2/3 | best_epoch=18
+C5_Pyme_Max | fold 3/3 | best_epoch=20
+Figuras CV generadas (PNG y PDF): results/re2/centralized/tuning/figures
+Ganador: C5_Pyme_Max | parámetros=14465 | umbral=0.80
+CV: F1=0.9360 ± 0.0028, Recall=0.8904, FPR=0.0260 ± 0.0023
+Épocas finales: 20 | Resultados: results/re2/centralized/tuning

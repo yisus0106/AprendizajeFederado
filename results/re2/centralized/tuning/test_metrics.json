@@ -1,0 +1,17 @@
+{
+  "dataset": "UNSW-NB15",
+  "split": "test",
+  "configuration_id": "C5_Pyme_Max",
+  "threshold": 0.8,
+  "accuracy": 0.9061725695962688,
+  "precision": 0.9100106844595626,
+  "recall": 0.9206300185299567,
+  "f1_score": 0.9152895507330606,
+  "roc_auc": 0.9762464120566344,
+  "specificity": 0.8884594594594595,
+  "false_positive_rate": 0.11154054054054054,
+  "tn": 32873,
+  "fp": 4127,
+  "fn": 3598,
+  "tp": 41734
+}

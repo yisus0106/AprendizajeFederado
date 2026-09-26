@@ -52,18 +52,24 @@ src/
 │   └── preprocess_unsw.py
 │
 └── models/
-    ├── train_centralized.py
-    └── tune_centralized.py
+    └── centralized/
+        ├── train_centralized.py
+        └── tune_centralized.py
 
 results/
 └── re2/
-    └── centralized/
-        ├── metrics.json
-        ├── training_history.csv
-        └── tuning/
+    └── centralized
+        ├── train
+        │   ├── metrics.json
+        │   └── training_history.csv
+        └── tuning
             ├── best_config.json
-            ├── hyperparameter_search.csv
-            └── threshold_search.csv
+            ├── cv_training_epochs.csv
+            ├── eligible_matrix.csv
+            ├── figures/
+            ├── full_cv_matrix_search.csv
+            ├── test_metrics.json
+            └── top_candidates_cv.csv
 
 artifacts/
 ├── models/
@@ -430,7 +436,7 @@ Contiene información necesaria para reproducir y auditar el preprocesamiento, i
 El modelo se implementa mediante **TensorFlow/Keras** en:
 
 ```text
-src/models/train_centralized.py
+src/models/centralized/train_centralized.py
 ```
 
 Se utiliza una red neuronal multicapa o **Multilayer Perceptron (MLP)** para clasificación binaria.
@@ -508,97 +514,60 @@ por tratarse de un problema de clasificación binaria.
 
 ---
 
-## 11. EarlyStopping
-
-Para evitar entrenamiento innecesario y limitar potenciales problemas de sobreajuste se utiliza:
-
-```python
-EarlyStopping(
-    monitor="val_loss",
-    patience=3,
-    restore_best_weights=True
-)
-```
-
-La ejecución final presentó:
-
-```text
-Epochs ejecutados: 18
-Mejor epoch:       15
-```
-
-El entrenamiento se detuvo después de tres épocas consecutivas sin superar el mejor `val_loss`.
-
-Debido a:
-
-```text
-restore_best_weights=True
-```
-
-los parámetros utilizados posteriormente para la evaluación corresponden al mejor estado identificado sobre VALIDATION y no necesariamente al último epoch ejecutado.
-
----
-
 ## 12. Ajuste controlado de hiperparámetros
 
 La selección de configuración se implementó mediante:
 
 ```text
-src/models/tune_centralized.py
+src/models/centralized/tune_centralized.py
 ```
 
 y se ejecuta con:
 
 ```bash
-python src/models/tune_centralized.py
+python src/models/centralized/tune_centralized.py
 ```
 
 Durante este procedimiento no se utiliza el conjunto TEST.
 
 Se evaluaron cinco configuraciones.
 
-| ID | Capas | Dropout | Learning rate | Precision | Recall | F1 | FPR |
-|---|---|---:|---:|---:|---:|---:|---:|
-| C0 | 64 → 32 | 0.20 | 0.001 | 0.9494 | 0.9729 | 0.9610 | 0.1106 |
-| C1 | 32 → 16 | 0.20 | 0.001 | 0.9510 | 0.9707 | 0.9608 | 0.1065 |
-| C2 | 64 → 32 | 0.30 | 0.001 | 0.9489 | 0.9733 | 0.9610 | 0.1117 |
-| C3 | 64 → 32 | 0.20 | 0.0005 | 0.9519 | 0.9685 | 0.9601 | 0.1044 |
-| C4 | 128 → 64 | 0.20 | 0.001 | 0.9556 | 0.9659 | 0.9608 | 0.0955 |
+| ID | Capas | Dropout | Learning rate |
+|---|---|---:|---:|
+| C1_Nano | 16 → 8 | 0.1 | 0.001 |
+| C2_Micro_Base | 32 → 16 | 0.2 | 0.001 |
+| C3_Micro_Robust_FL | 32 → 16 | 0.35 | 0.001 |
+| C4_Micro_Slow_FL | 32 → 16 | 0.2 | 0.0005 |
+| C5_Pyme_Max | 64 → 32 | 0.2 | 0.001 |
 
 La configuración seleccionada fue:
 
 ```text
-C0
+C5_Pyme_Max
 ```
 
 correspondiente a:
 
 ```text
 Dense(64)
-Dropout(0.20)
+Dropout(0.2)
 Dense(32)
 Learning rate = 0.001
 ```
 
-La configuración presentó el mejor equilibrio según F1 sin incrementar innecesariamente la complejidad del modelo.
+La configuración presentó el mejor equilibrio según F1 además de considerar un nivel bajo de FPR
 
 Las configuraciones y resultados completos se encuentran en:
 
 ```text
-results/re2/centralized/tuning/hyperparameter_search.csv
+results/re2/centralized/tuning/eligible_matrix.csv
 ```
 
 ---
 
 ## 13. Selección del threshold
 
-Inicialmente se utilizó el threshold estándar:
-
-```text
-0.50
-```
-
-Sin embargo, debido a la necesidad de controlar las falsas alarmas del IDS, se evaluaron múltiples thresholds utilizando únicamente VALIDATION.
+Debido a la necesidad de controlar las falsas alarmas del IDS, se evaluaron múltiples thresholds.
 
 Se probaron valores desde:
 
@@ -621,25 +590,19 @@ con incrementos de:
 Los resultados completos están disponibles en:
 
 ```text
-results/re2/centralized/tuning/threshold_search.csv
+results/re2/centralized/tuning/full_cv_matrix_search.csv
 ```
 
-Algunos valores relevantes fueron:
-
-| Threshold | Accuracy | Precision | Recall | F1 | FPR |
-|---:|---:|---:|---:|---:|---:|
-| 0.45 | 0.9458 | 0.9406 | 0.9824 | 0.9610 | 0.1323 |
-| 0.50 | 0.9462 | 0.9494 | 0.9729 | 0.9610 | 0.1106 |
-| **0.55** | **0.9463** | **0.9564** | **0.9651** | **0.9607** | **0.0938** |
-| 0.60 | 0.9449 | 0.9622 | 0.9565 | 0.9594 | 0.0800 |
-| 0.65 | 0.9430 | 0.9679 | 0.9476 | 0.9577 | 0.0670 |
-
-El máximo F1 observado se obtuvo alrededor de `0.45`, pero los thresholds cercanos presentaron diferencias mínimas.
-
-Por este motivo se consideraron equivalentes las configuraciones cuya diferencia respecto del máximo F1 fuera menor o igual a:
+Los valores relevantes relevantes incluyendo el elegido están en:
 
 ```text
-0.001
+results/re2/centralized/tuning/eligible_matrix.csv
+```
+
+Se consideraron equivalentes las configuraciones cuya diferencia respecto del máximo F1 fuera menor o igual a:
+
+```text
+0.005
 ```
 
 y que cumplieran:
@@ -648,12 +611,15 @@ y que cumplieran:
 Recall >= 0.80
 ```
 
-Entre estas configuraciones se priorizó aquella que redujera la tasa de falsos positivos.
-
-El threshold seleccionado fue finalmente:
+Además de un FPR aceptable de:
 
 ```text
-0.55
+0.03
+```
+
+Y como margen máximo de FPR de:
+```text
+0.05
 ```
 
 Esta decisión permitió disminuir las falsas alarmas manteniendo un recall ampliamente superior al mínimo requerido.
@@ -679,7 +645,7 @@ ROC-AUC
 
 y se genera una matriz de confusión.
 
-Para análisis complementario durante la selección del threshold se utilizaron también:
+Para análisis complementario durante la selección del configuración se utilizaron también:
 
 ```text
 Specificity
@@ -706,84 +672,15 @@ Después de seleccionar la arquitectura, hiperparámetros y threshold utilizando
 
 del conjunto TEST oficial.
 
-Los resultados obtenidos fueron:
+Los resultados obtenidos (todas las métricas y la matriz de confusión) están documentadas dentro de:
 
-| Métrica | Resultado |
-|---|---:|
-| Accuracy | **0.8609** |
-| Precision | **0.8143** |
-| Recall | **0.9682** |
-| F1-score | **0.8846** |
-| ROC-AUC | **0.9750** |
-
-Expresado en porcentaje:
-
-| Métrica | Resultado |
-|---|---:|
-| Accuracy | **86.09 %** |
-| Precision | **81.43 %** |
-| Recall | **96.82 %** |
-| F1-score | **88.46 %** |
-| ROC-AUC | **97.50 %** |
+```text
+logs/re2_1/train_centralized.log
+```
 
 ---
 
-## 16. Matriz de confusión
-
-La matriz de confusión obtenida fue:
-
-```text
-[[26989 10011]
- [ 1441 43891]]
-```
-
-Interpretación:
-
-| | Predicción benigno | Predicción malicioso |
-|---|---:|---:|
-| **Benigno real** | 26,989 | 10,011 |
-| **Malicioso real** | 1,441 | 43,891 |
-
-Por tanto:
-
-```text
-TN = 26,989
-FP = 10,011
-FN = 1,441
-TP = 43,891
-```
-
-El recall para tráfico malicioso se obtiene mediante:
-
-```text
-Recall = TP / (TP + FN)
-```
-
-resultando aproximadamente:
-
-```text
-0.9682
-```
-
-o:
-
-```text
-96.82 %
-```
-
-La tasa de falsos positivos sobre TEST es aproximadamente:
-
-```text
-27.06 %
-```
-
-por lo que el modelo presenta una alta sensibilidad para detectar tráfico malicioso, aunque continúa mostrando una cantidad relevante de tráfico benigno clasificado como ataque.
-
-Esta característica debe considerarse posteriormente durante la comparación con el modelo federado.
-
----
-
-## 17. Cumplimiento del indicador de recall
+## 16. Cumplimiento del indicador de recall
 
 El RE2.1 establece como criterio mínimo:
 
@@ -794,13 +691,13 @@ Recall para tráfico malicioso >= 80 %
 El modelo final obtuvo:
 
 ```text
-Recall = 96.82 %
+Recall = 92.06 %
 ```
 
 Por tanto:
 
 ```text
-96.82 % >= 80 %
+92.06 % >= 80 %
 ```
 
 y el criterio mínimo se considera satisfecho.
@@ -817,12 +714,12 @@ La verificación se resume de la siguiente manera:
 |---|---|---|
 | Clasificación binaria | Benigno / Malicioso | Cumplido |
 | Evaluación sobre TEST separado | 82,332 registros | Cumplido |
-| Accuracy reportado | 86.09 % | Cumplido |
-| Precision reportado | 81.43 % | Cumplido |
-| Recall reportado | 96.82 % | Cumplido |
-| F1-score reportado | 88.46 % | Cumplido |
+| Accuracy reportado | 90.62 % | Cumplido |
+| Precision reportado | 91.00 % | Cumplido |
+| Recall reportado | 92.06 % | Cumplido |
+| F1-score reportado | 91.53 % | Cumplido |
 | Matriz de confusión | Generada | Cumplido |
-| Recall mínimo ≥ 80 % | 96.82 % | Cumplido |
+| Recall mínimo ≥ 80 % | 92.06 % | Cumplido |
 | Modelo entrenado almacenado | `.keras` | Cumplido |
 | Procedimiento reproducible | Scripts + configuración + resultados | Cumplido |
 
@@ -832,11 +729,18 @@ Con base en estas evidencias, el **RE2.1 se considera implementado y verificado*
 
 ## 19. Archivos de resultados
 
-Los resultados del modelo centralizado se almacenan en:
+Los resultados del modelo centralizado entrenado con la configuración ganadora se almacenan en:
 
 ```text
-results/re2/centralized/
+results/re2/centralized/train
 ```
+
+Mientras que los resultados obtenidos para escoger la mejor configuración se almancenan en:
+
+```text
+results/re2/centralized/tuning
+```
+
 
 ### `metrics.json`
 
@@ -862,18 +766,6 @@ roc_auc
 confusion_matrix
 ```
 
-El valor esperado para:
-
-```text
-classification_threshold
-```
-
-es:
-
-```text
-0.55
-```
-
 ### `training_history.csv`
 
 Contiene la evolución del entrenamiento por epoch, incluyendo:
@@ -883,27 +775,19 @@ loss
 accuracy
 precision
 recall
-auc
-val_loss
-val_accuracy
-val_precision
-val_recall
-val_auc
 ```
 
-### `hyperparameter_search.csv`
+### `full_cv_matrix_search.csv`
 
-Contiene los resultados de las configuraciones C0–C4 evaluadas durante el ajuste de hiperparámetros.
+Contiene todos los resultados de las configuraciones C1–C5 evaluadas durante el ajuste de hiperparámetros.
 
-### `threshold_search.csv`
+### `cv_training_epochs.csv`
 
-Contiene la evaluación de los diferentes thresholds sobre VALIDATION.
+Contiene la evaluación de las configuraciones por cada fold ejecutado.
 
 ### `best_config.json`
 
 Contiene la configuración seleccionada durante el proceso de tuning.
-
-> **Nota de consistencia:** el threshold definitivo utilizado por el modelo centralizado es `0.55`. Si `best_config.json` todavía contiene el valor automático `0.45` generado por una versión anterior del criterio de selección, debe actualizarse el procedimiento de selección o regenerarse este archivo antes de congelar el RE2.1, de modo que la documentación, configuración y ejecución final sean consistentes.
 
 ---
 
@@ -929,12 +813,6 @@ Contiene para cada registro del conjunto TEST:
 real
 probability
 prediction
-```
-
-El threshold utilizado para obtener `prediction` es:
-
-```text
-0.55
 ```
 
 ---
@@ -1004,7 +882,7 @@ metadata.json
 ### Paso 4 – Ejecutar ajuste de hiperparámetros
 
 ```bash
-python src/models/tune_centralized.py
+python src/models/centralized/tune_centralized.py
 ```
 
 Este procedimiento utiliza exclusivamente:
@@ -1021,47 +899,35 @@ Se generan:
 ```text
 results/re2/centralized/tuning/
 ├── best_config.json
-├── hyperparameter_search.csv
-└── threshold_search.csv
+├── full_cv_matrix_search.csv
+├── cv_training_epochs.csv
+├── eligible_matrix.csv
+└── top_candidates_cv.csv
 ```
 
 ---
 
 ### Paso 5 – Entrenar y evaluar el modelo final
 
-Verificar previamente que:
-
-```python
-CLASSIFICATION_THRESHOLD = 0.55
-```
-
-en:
-
-```text
-src/models/train_centralized.py
-```
-
-Posteriormente ejecutar:
-
 ```bash
-python src/models/train_centralized.py
+python src/models/centralized/train_centralized.py
 ```
 
 El resultado esperado debe ser cercano a:
 
 ```text
-Accuracy:  0.8609
-Precision: 0.8143
-Recall:    0.9682
-F1-score:  0.8846
-ROC-AUC:   0.9750
+Accuracy:  0.9061
+Precision: 0.9100
+Recall:    0.9206
+F1-score:  0.9152
+ROC-AUC:   0.9762
 ```
 
 y una matriz de confusión equivalente a:
 
 ```text
-[[26989 10011]
- [ 1441 43891]]
+[[32873 4127]
+ [ 3598 41734]]
 ```
 
 Debido a aspectos asociados a ejecución numérica, plataforma o dependencias, pueden existir pequeñas variaciones en las últimas cifras decimales.
@@ -1140,11 +1006,7 @@ VALIDATION y TEST no deberán formar parte de las particiones locales de entrena
 
 ### Threshold
 
-El threshold final del modelo centralizado se fija en:
-
-```text
-0.55
-```
+El threshold final debe ser el seleccionado mediante la selección de hiperparámetros
 
 Este valor debe mantenerse documentado para garantizar una comparación consistente con el modelo federado.
 
