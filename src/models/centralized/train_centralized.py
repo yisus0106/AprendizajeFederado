@@ -1,6 +1,6 @@
 """Entrena y evalúa el baseline centralizado con la configuración congelada por CV.
 
-Ubicar en src/models/ y ejecutar: python src/models/train_centralized.py
+Ejecutar desde la raíz: python src/models/centralized/train_centralized.py
 Lee results/re2/centralized/tuning/best_config.json. No ajusta nada usando TEST.
 """
 
@@ -16,7 +16,7 @@ from sklearn.metrics import accuracy_score, classification_report, confusion_mat
 # ============================================================
 # Rutas
 # ============================================================
-BASE_DIR = Path(__file__).resolve().parents[2]
+BASE_DIR = Path(__file__).resolve().parents[3]
 DATA_DIR = BASE_DIR / "data" / "processed" / "unsw_nb15"
 RESULTS_DIR = BASE_DIR / "results" / "re2" / "centralized" / "train"
 PREDICTIONS_DIR = BASE_DIR / "artifacts" / "predictions"
