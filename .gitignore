@@ -46,19 +46,5 @@ core.*
 .DS_Store
 Thumbs.db
 
-# Excepciones para entregables formales
-!logs/re1_3/environment_verification.log
-!logs/re1_3/client_data_verification.log
-!logs/re1_3/server_verification.log
-!logs/re1_3/federated_round.log
-!logs/re1_3/federated_training.log
-!logs/re1_3/data_locality_verification.log
-!logs/re1_3/re1_3_validation.log
-!logs/re2_1/train_centralized.log
-!logs/re2_1/tune_centralized.log
-
 # Artefactos experimentales regenerables
 artifacts/
-
-# Corridas temporales de experimentos
-results/**/runs/
