@@ -1,0 +1,35 @@
+
+Ejecución: 20260926T183336Z_3fc39f61
+Clientes: 3
+Registros únicos: 175,341
+Características: 192
+Rondas: 20
+Épocas locales por ronda: 1
+Tamaño de lote: 256
+Salida: artifacts/runs/federated/20260926T183336Z_3fc39f61
+
+Ronda 001/020 | loss=0.2477 | accuracy=0.8000 | precision=0.9514 | recall=0.7442 | 3.7 s
+Ronda 002/020 | loss=0.1443 | accuracy=0.9007 | precision=0.9721 | recall=0.8793 | 3.0 s
+Ronda 003/020 | loss=0.1333 | accuracy=0.9035 | precision=0.9781 | recall=0.8780 | 2.5 s
+Ronda 004/020 | loss=0.1282 | accuracy=0.9055 | precision=0.9801 | recall=0.8791 | 3.6 s
+Ronda 005/020 | loss=0.1260 | accuracy=0.9063 | precision=0.9815 | recall=0.8788 | 2.4 s
+Ronda 006/020 | loss=0.1244 | accuracy=0.9075 | precision=0.9817 | recall=0.8805 | 2.4 s
+Ronda 007/020 | loss=0.1229 | accuracy=0.9091 | precision=0.9824 | recall=0.8822 | 2.7 s
+Ronda 008/020 | loss=0.1219 | accuracy=0.9092 | precision=0.9825 | recall=0.8822 | 2.7 s
+Ronda 009/020 | loss=0.1210 | accuracy=0.9107 | precision=0.9832 | recall=0.8839 | 3.2 s
+Ronda 010/020 | loss=0.1203 | accuracy=0.9102 | precision=0.9833 | recall=0.8831 | 2.5 s
+Ronda 011/020 | loss=0.1199 | accuracy=0.9109 | precision=0.9836 | recall=0.8838 | 2.8 s
+Ronda 012/020 | loss=0.1195 | accuracy=0.9111 | precision=0.9842 | recall=0.8836 | 2.9 s
+Ronda 013/020 | loss=0.1189 | accuracy=0.9118 | precision=0.9839 | recall=0.8849 | 2.4 s
+Ronda 014/020 | loss=0.1184 | accuracy=0.9122 | precision=0.9841 | recall=0.8853 | 3.5 s
+Ronda 015/020 | loss=0.1180 | accuracy=0.9127 | precision=0.9841 | recall=0.8861 | 3.1 s
+Ronda 016/020 | loss=0.1175 | accuracy=0.9134 | precision=0.9841 | recall=0.8872 | 3.1 s
+Ronda 017/020 | loss=0.1175 | accuracy=0.9131 | precision=0.9843 | recall=0.8865 | 3.0 s
+Ronda 018/020 | loss=0.1172 | accuracy=0.9136 | precision=0.9846 | recall=0.8869 | 3.1 s
+Ronda 019/020 | loss=0.1171 | accuracy=0.9135 | precision=0.9846 | recall=0.8868 | 4.0 s
+Ronda 020/020 | loss=0.1166 | accuracy=0.9141 | precision=0.9844 | recall=0.8879 | 3.0 s
+
+Modelo global guardado en:
+artifacts/runs/federated/20260926T183336Z_3fc39f61/global_model.keras
+Historial:
+artifacts/runs/federated/20260926T183336Z_3fc39f61/training_history.csv

@@ -1,0 +1,96 @@
+{
+  "dataset": "UNSW-NB15",
+  "evaluation_split": "official_test",
+  "model": "federated_global_MLP",
+  "run_id": "20260926T183336Z_3fc39f61",
+  "evaluated_at_utc": "2026-09-29T04:54:04.460675+00:00",
+  "model_path": "artifacts/runs/federated/20260926T183336Z_3fc39f61/global_model.keras",
+  "model_sha256": "990d3b72b9d5994ee7bb1a5f00958fe4c03a3dd87b193ebec13040e3dbd3550d",
+  "test_path": "data/processed/unsw_nb15/test.npz",
+  "test_sha256": "21a4478f2d44883907a54b7133b4e8560375bdb4110b58080055c9a2a58bb073",
+  "effective_config_sha256": "dfe1b7910afd57bcb3d175f9697acaf5df80b163b6a3fe4f419469d2b276b87d",
+  "preprocessing_artifacts_verified": {
+    "metadata.json": "ed7a7fb8ce9d5501a3fc2a4d6d530890f7377f7be1495a9192680dad5b9a837e",
+    "preprocessor.joblib": "ae5c5c0070e0b427426528998140aed470893eb79b03e7b20db7292c2c810daa"
+  },
+  "input_features": 192,
+  "num_clients": 3,
+  "completed_rounds": 20,
+  "local_epochs": 1,
+  "classification_threshold": 0.8,
+  "decision_rule": "probability >= threshold",
+  "positive_class": 1,
+  "zero_division_policy": 0,
+  "samples": {
+    "test": 82332,
+    "benign": 37000,
+    "malicious": 45332
+  },
+  "accuracy": 0.9032575426322693,
+  "precision": 0.929634143537149,
+  "recall": 0.8917982881849467,
+  "f1_score": 0.9103232416487463,
+  "roc_auc": 0.9732939883764469,
+  "false_positive_rate": 0.0827027027027027,
+  "specificity": 0.9172972972972973,
+  "false_negative_rate": 0.10820171181505338,
+  "confusion_matrix": [
+    [
+      33940,
+      3060
+    ],
+    [
+      4905,
+      40427
+    ]
+  ],
+  "confusion_matrix_order": [
+    0,
+    1
+  ],
+  "confusion_matrix_axes": {
+    "rows": "true_class",
+    "columns": "predicted_class"
+  },
+  "tn": 33940,
+  "fp": 3060,
+  "fn": 4905,
+  "tp": 40427,
+  "classification_report": {
+    "benigno": {
+      "precision": 0.8737289226412666,
+      "recall": 0.9172972972972973,
+      "f1-score": 0.894983189399433,
+      "support": 37000.0
+    },
+    "malicioso": {
+      "precision": 0.929634143537149,
+      "recall": 0.8917982881849467,
+      "f1-score": 0.9103232416487463,
+      "support": 45332.0
+    },
+    "accuracy": 0.9032575426322693,
+    "macro avg": {
+      "precision": 0.9016815330892078,
+      "recall": 0.904547792741122,
+      "f1-score": 0.9026532155240896,
+      "support": 82332.0
+    },
+    "weighted avg": {
+      "precision": 0.9045103378097569,
+      "recall": 0.9032575426322693,
+      "f1-score": 0.9034294223169606,
+      "support": 82332.0
+    }
+  },
+  "recall_minimum_check": {
+    "minimum": 0.8,
+    "satisfied": true
+  },
+  "threshold_adjusted_on_test": false,
+  "versions": {
+    "numpy": "1.25.2",
+    "tensorflow": "2.14.1",
+    "scikit_learn": "1.7.2"
+  }
+}

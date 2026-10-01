@@ -1,0 +1,10 @@
+{
+  "partitions_dir": "data/processed/unsw_nb15/federated/train_validation_iid_clients_3_seed_42_min_100",
+  "model_config_path": "results/re2/centralized/tuning/best_config.json",
+  "metadata_path": "data/processed/unsw_nb15/metadata.json",
+  "output_root": "artifacts/runs/federated",
+  "num_rounds": 20,
+  "local_epochs": 1,
+  "server_learning_rate": 1.0,
+  "seed": 42
+}

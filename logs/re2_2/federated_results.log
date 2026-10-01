@@ -1,0 +1,37 @@
+
+EVALUACIÓN FINAL DEL MODELO GLOBAL FEDERADO
+Modelo: artifacts/runs/federated/20260926T183336Z_3fc39f61/global_model.keras
+Rondas completadas: 20
+Registros TEST: 82,332
+Umbral guardado: 0.8
+
+322/322 [==============================] - 0s 1ms/step
+
+MÉTRICAS FINALES SOBRE TEST
+accuracy              : 0.903258 (90.33 %)
+precision             : 0.929634 (92.96 %)
+recall                : 0.891798 (89.18 %)
+f1_score              : 0.910323 (91.03 %)
+roc_auc               : 0.973294
+false_positive_rate   : 0.082703 (8.27 %)
+specificity           : 0.917297 (91.73 %)
+false_negative_rate   : 0.108202 (10.82 %)
+
+Matriz de confusión [[TN, FP], [FN, TP]]:
+[[33940  3060]
+ [ 4905 40427]]
+
+Reporte por clase:
+              precision    recall  f1-score   support
+
+     benigno   0.873729  0.917297  0.894983     37000
+   malicioso   0.929634  0.891798  0.910323     45332
+
+    accuracy                       0.903258     82332
+   macro avg   0.901682  0.904548  0.902653     82332
+weighted avg   0.904510  0.903258  0.903429     82332
+
+Recall mínimo del 80 %: CUMPLE
+
+Resultados guardados en:
+results/re2/federated/20260926T183336Z_3fc39f61

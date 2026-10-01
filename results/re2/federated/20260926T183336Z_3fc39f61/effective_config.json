@@ -1,0 +1,79 @@
+{
+  "model": {
+    "dataset": "UNSW-NB15",
+    "seed": 42,
+    "selection_dataset": "train+validation",
+    "selection_strategy": "stratified_3_fold_cv_architecture_threshold",
+    "class_weight": null,
+    "selection_criteria": {
+      "minimum_recall_mean": 0.8,
+      "maximum_fpr_mean_plus_std": 0.03,
+      "f1_tolerance": 0.005,
+      "tie_break_order": [
+        "num_params",
+        "fpr_mean_plus_std",
+        "f1_score_mean"
+      ]
+    },
+    "configuration_id": "C5_Pyme_Max",
+    "hidden_layers": [
+      64,
+      32
+    ],
+    "dropout": 0.2,
+    "learning_rate": 0.001,
+    "batch_size": 256,
+    "max_epochs_cv": 20,
+    "patience_cv": 3,
+    "num_params": 14465,
+    "classification_threshold": 0.8,
+    "cv_best_epochs": [
+      20,
+      18,
+      20
+    ],
+    "final_training_epochs": 20,
+    "cv_metrics": {
+      "accuracy": {
+        "mean": 0.9170986819967949,
+        "std": 0.0033364145084170053
+      },
+      "precision": {
+        "mean": 0.9864779970380614,
+        "std": 0.0011129854548835093
+      },
+      "recall": {
+        "mean": 0.8904064435623988,
+        "std": 0.005592888253052931
+      },
+      "f1_score": {
+        "mean": 0.9359756253337174,
+        "std": 0.002788658384555523
+      },
+      "roc_auc": {
+        "mean": 0.9898852451179,
+        "std": 0.0001845999889704596
+      },
+      "specificity": {
+        "mean": 0.9739820956458293,
+        "std": 0.002290253639925549
+      },
+      "false_positive_rate": {
+        "mean": 0.026017904354170802,
+        "std": 0.0022902536399255057
+      }
+    },
+    "cv_fpr_mean_plus_std": 0.028308157994096306,
+    "input_features": 192,
+    "optimizer": "adam"
+  },
+  "federated": {
+    "aggregation": "FedAvg",
+    "client_weighting": "NUM_EXAMPLES",
+    "client_optimizer": "adam",
+    "client_learning_rate": 0.001,
+    "server_optimizer": "sgd",
+    "server_learning_rate": 1.0,
+    "server_momentum": 0.0
+  }
+}
