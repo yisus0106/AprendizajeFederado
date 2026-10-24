@@ -12,7 +12,7 @@ import numpy as np
 
 NUM_CLIENTS = 3
 
-NON_IID = False
+NON_IID = True
 ALPHA = 0.5             # Solo se utiliza cuando NON_IID = True.
 
 SEED = 42
