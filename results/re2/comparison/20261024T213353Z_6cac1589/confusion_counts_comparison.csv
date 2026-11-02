@@ -1,0 +1,5 @@
+outcome,centralized,federated,difference
+tn,32873,33940,1067
+fp,4127,3060,-1067
+fn,3598,4905,1307
+tp,41734,40427,-1307

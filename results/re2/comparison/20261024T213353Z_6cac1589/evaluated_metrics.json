@@ -1,0 +1,106 @@
+{
+  "centralized": {
+    "accuracy": 0.9061725695962688,
+    "precision": 0.9100106844595626,
+    "recall": 0.9206300185299567,
+    "f1_score": 0.9152895507330606,
+    "false_positive_rate": 0.11154054054054054,
+    "false_negative_rate": 0.07936998147004323,
+    "specificity": 0.8884594594594595,
+    "roc_auc": 0.9762464120566344,
+    "average_precision": 0.9826525523103011,
+    "tn": 32873,
+    "fp": 4127,
+    "fn": 3598,
+    "tp": 41734,
+    "confusion_matrix": [
+      [
+        32873,
+        4127
+      ],
+      [
+        3598,
+        41734
+      ]
+    ],
+    "classification_report": {
+      "benigno": {
+        "precision": 0.9013462751227003,
+        "recall": 0.8884594594594595,
+        "f1-score": 0.894856473982932,
+        "support": 37000.0
+      },
+      "malicioso": {
+        "precision": 0.9100106844595626,
+        "recall": 0.9206300185299567,
+        "f1-score": 0.9152895507330606,
+        "support": 45332.0
+      },
+      "accuracy": 0.9061725695962688,
+      "macro avg": {
+        "precision": 0.9056784797911315,
+        "recall": 0.9045447389947081,
+        "f1-score": 0.9050730123579963,
+        "support": 82332.0
+      },
+      "weighted avg": {
+        "precision": 0.9061168989877666,
+        "recall": 0.9061725695962688,
+        "f1-score": 0.9061069262400961,
+        "support": 82332.0
+      }
+    }
+  },
+  "federated": {
+    "accuracy": 0.9032575426322693,
+    "precision": 0.929634143537149,
+    "recall": 0.8917982881849467,
+    "f1_score": 0.9103232416487463,
+    "false_positive_rate": 0.0827027027027027,
+    "false_negative_rate": 0.10820171181505338,
+    "specificity": 0.9172972972972973,
+    "roc_auc": 0.9732939883764469,
+    "average_precision": 0.9805319745602489,
+    "tn": 33940,
+    "fp": 3060,
+    "fn": 4905,
+    "tp": 40427,
+    "confusion_matrix": [
+      [
+        33940,
+        3060
+      ],
+      [
+        4905,
+        40427
+      ]
+    ],
+    "classification_report": {
+      "benigno": {
+        "precision": 0.8737289226412666,
+        "recall": 0.9172972972972973,
+        "f1-score": 0.894983189399433,
+        "support": 37000.0
+      },
+      "malicioso": {
+        "precision": 0.929634143537149,
+        "recall": 0.8917982881849467,
+        "f1-score": 0.9103232416487463,
+        "support": 45332.0
+      },
+      "accuracy": 0.9032575426322693,
+      "macro avg": {
+        "precision": 0.9016815330892078,
+        "recall": 0.904547792741122,
+        "f1-score": 0.9026532155240896,
+        "support": 82332.0
+      },
+      "weighted avg": {
+        "precision": 0.9045103378097569,
+        "recall": 0.9032575426322693,
+        "f1-score": 0.9034294223169606,
+        "support": 82332.0
+      }
+    }
+  }
+}

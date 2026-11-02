@@ -1,0 +1,20 @@
+Comparacion: 20261024T213353Z_6cac1589 | TEST: 82332 filas | Umbral: 0.80
+Evaluando centralized...
+Evaluando federated...
+
+             metric                  label  centralized  federated  difference  difference_percentage_points preferred_direction
+           accuracy               Accuracy     0.906173   0.903258   -0.002915                     -0.291503              higher
+          precision              Precision     0.910011   0.929634    0.019623                      1.962346              higher
+             recall                 Recall     0.920630   0.891798   -0.028832                     -2.883173              higher
+           f1_score               F1-score     0.915290   0.910323   -0.004966                     -0.496631              higher
+false_positive_rate                    FPR     0.111541   0.082703   -0.028838                     -2.883784               lower
+false_negative_rate                    FNR     0.079370   0.108202    0.028832                      2.883173               lower
+        specificity          Especificidad     0.888459   0.917297    0.028838                      2.883784              higher
+            roc_auc                ROC-AUC     0.976246   0.973294   -0.002952                           NaN              higher
+  average_precision Average Precision (AP)     0.982653   0.980532   -0.002121                           NaN              higher
+
+Diferencia FP: -1067 | Diferencia FN: +1307
+COMPARACION COMPLETADA
+Resultados: /home/yisus/proyectos/AprendizajeFederado/results/re2/comparison/20261024T213353Z_6cac1589
+Predicciones: /home/yisus/proyectos/AprendizajeFederado/artifacts/predictions/comparison/20261024T213353Z_6cac1589
+Log: /home/yisus/proyectos/AprendizajeFederado/logs/re2_3/20261024T213353Z_6cac1589.log
