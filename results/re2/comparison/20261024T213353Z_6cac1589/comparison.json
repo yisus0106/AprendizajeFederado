@@ -1,0 +1,282 @@
+{
+  "protocol": {
+    "status": "completed",
+    "comparison_id": "20261024T213353Z_6cac1589",
+    "created_at_utc": "2026-10-24T21:33:53.354340+00:00",
+    "federated_run_id": "20260926T183336Z_3fc39f61",
+    "git_commit": "4a71ffd097e18a19f91e5d378ebc1de70024c568",
+    "versions": {
+      "python": "3.11.15",
+      "numpy": "1.25.2",
+      "pandas": "2.2.3",
+      "scikit-learn": "1.7.2",
+      "matplotlib": "3.8.4",
+      "tensorflow": "2.14.1"
+    },
+    "classification_threshold": 0.8,
+    "positive_class": 1,
+    "decision_rule": "probability >= threshold",
+    "reference_tolerance": 1e-06,
+    "training_performed": false,
+    "threshold_adjusted_on_test": false,
+    "confusion_matrix_axes": {
+      "rows": "true_class",
+      "columns": "predicted_class"
+    },
+    "historical_provenance_note": "El reporte centralizado original no incluye hashes del modelo ni de TEST. Esta comparacion registra sus hashes actuales y contrasta sus predicciones con las metricas historicas. No certifica retrospectivamente esos archivos.",
+    "inputs": {
+      "centralized_model": {
+        "path": "/home/yisus/proyectos/AprendizajeFederado/artifacts/models/centralized/unsw_nb15_baseline.keras",
+        "sha256": "89dffa3acb8c4afa9dcd2d2c7ebc6b428fd46e52a2221d73ea7396b6a58d5d72"
+      },
+      "federated_model": {
+        "path": "/home/yisus/proyectos/AprendizajeFederado/artifacts/runs/federated/20260926T183336Z_3fc39f61/global_model.keras",
+        "sha256": "990d3b72b9d5994ee7bb1a5f00958fe4c03a3dd87b193ebec13040e3dbd3550d"
+      },
+      "central_reference": {
+        "path": "/home/yisus/proyectos/AprendizajeFederado/results/re2/centralized/train/metrics.json",
+        "sha256": "2f13073403cd2d6ff2028d86c6ad710074ac61c58a27afbb76b5f211b28e492b"
+      },
+      "federated_reference": {
+        "path": "/home/yisus/proyectos/AprendizajeFederado/results/re2/federated/20260926T183336Z_3fc39f61/metrics.json",
+        "sha256": "43be9c2d1884ba0bede256a9ca2f40142b50c0a832cf3daabbe7552b853a52cb"
+      },
+      "effective_config": {
+        "path": "/home/yisus/proyectos/AprendizajeFederado/artifacts/runs/federated/20260926T183336Z_3fc39f61/effective_config.json",
+        "sha256": "dfe1b7910afd57bcb3d175f9697acaf5df80b163b6a3fe4f419469d2b276b87d"
+      },
+      "run_summary": {
+        "path": "/home/yisus/proyectos/AprendizajeFederado/artifacts/runs/federated/20260926T183336Z_3fc39f61/run_summary.json",
+        "sha256": "7da30ab3c08ec86256d1ab6c952c5cc4d5504658a8c8ae00c623ff7d39139d44"
+      },
+      "partition_manifest": {
+        "path": "/home/yisus/proyectos/AprendizajeFederado/artifacts/runs/federated/20260926T183336Z_3fc39f61/partition_manifest.json",
+        "sha256": "d72a38eaae7ff5d3e1cccaddf2012492ed97fa41d399c39d32c95d36146babc0"
+      },
+      "test": {
+        "path": "/home/yisus/proyectos/AprendizajeFederado/data/processed/unsw_nb15/test.npz",
+        "sha256": "21a4478f2d44883907a54b7133b4e8560375bdb4110b58080055c9a2a58bb073"
+      },
+      "train": {
+        "path": "/home/yisus/proyectos/AprendizajeFederado/data/processed/unsw_nb15/train.npz",
+        "sha256": "7fd8b4a5f446754b393a17191cde11f4ef9cc5bf8c67300b70e673d278cd0887"
+      },
+      "validation": {
+        "path": "/home/yisus/proyectos/AprendizajeFederado/data/processed/unsw_nb15/validation.npz",
+        "sha256": "7461e1b055392b1e2e40d45b53313834358eafeb98e6fbd2daf5d49cd9861994"
+      },
+      "metadata": {
+        "path": "/home/yisus/proyectos/AprendizajeFederado/data/processed/unsw_nb15/metadata.json",
+        "sha256": "ed7a7fb8ce9d5501a3fc2a4d6d530890f7377f7be1495a9192680dad5b9a837e"
+      },
+      "preprocessor": {
+        "path": "/home/yisus/proyectos/AprendizajeFederado/data/processed/unsw_nb15/preprocessor.joblib",
+        "sha256": "ae5c5c0070e0b427426528998140aed470893eb79b03e7b20db7292c2c810daa"
+      },
+      "comparison_script": {
+        "path": "/home/yisus/proyectos/AprendizajeFederado/src/evaluation/compare_models.py",
+        "sha256": "d0d1c6111ba5ce812190e5b793045a746dc4671f8e84c1df3111540b8f41d477"
+      }
+    },
+    "reference_metrics_matched": true,
+    "test_samples": 82332,
+    "benign_samples": 37000,
+    "malicious_samples": 45332,
+    "training_example_visits": {
+      "centralized": 3506820,
+      "federated": 3506820
+    },
+    "predictions_path": "/home/yisus/proyectos/AprendizajeFederado/artifacts/predictions/comparison/20261024T213353Z_6cac1589/predictions.csv",
+    "predictions_sha256": "cb4cb5f3cb2665ca560a6c75839b55aacb5233564d3a857bc97d69b372592606",
+    "log_path": "/home/yisus/proyectos/AprendizajeFederado/logs/re2_3/20261024T213353Z_6cac1589.log"
+  },
+  "models": {
+    "centralized": {
+      "accuracy": 0.9061725695962688,
+      "precision": 0.9100106844595626,
+      "recall": 0.9206300185299567,
+      "f1_score": 0.9152895507330606,
+      "false_positive_rate": 0.11154054054054054,
+      "false_negative_rate": 0.07936998147004323,
+      "specificity": 0.8884594594594595,
+      "roc_auc": 0.9762464120566344,
+      "average_precision": 0.9826525523103011,
+      "tn": 32873,
+      "fp": 4127,
+      "fn": 3598,
+      "tp": 41734,
+      "confusion_matrix": [
+        [
+          32873,
+          4127
+        ],
+        [
+          3598,
+          41734
+        ]
+      ],
+      "classification_report": {
+        "benigno": {
+          "precision": 0.9013462751227003,
+          "recall": 0.8884594594594595,
+          "f1-score": 0.894856473982932,
+          "support": 37000.0
+        },
+        "malicioso": {
+          "precision": 0.9100106844595626,
+          "recall": 0.9206300185299567,
+          "f1-score": 0.9152895507330606,
+          "support": 45332.0
+        },
+        "accuracy": 0.9061725695962688,
+        "macro avg": {
+          "precision": 0.9056784797911315,
+          "recall": 0.9045447389947081,
+          "f1-score": 0.9050730123579963,
+          "support": 82332.0
+        },
+        "weighted avg": {
+          "precision": 0.9061168989877666,
+          "recall": 0.9061725695962688,
+          "f1-score": 0.9061069262400961,
+          "support": 82332.0
+        }
+      }
+    },
+    "federated": {
+      "accuracy": 0.9032575426322693,
+      "precision": 0.929634143537149,
+      "recall": 0.8917982881849467,
+      "f1_score": 0.9103232416487463,
+      "false_positive_rate": 0.0827027027027027,
+      "false_negative_rate": 0.10820171181505338,
+      "specificity": 0.9172972972972973,
+      "roc_auc": 0.9732939883764469,
+      "average_precision": 0.9805319745602489,
+      "tn": 33940,
+      "fp": 3060,
+      "fn": 4905,
+      "tp": 40427,
+      "confusion_matrix": [
+        [
+          33940,
+          3060
+        ],
+        [
+          4905,
+          40427
+        ]
+      ],
+      "classification_report": {
+        "benigno": {
+          "precision": 0.8737289226412666,
+          "recall": 0.9172972972972973,
+          "f1-score": 0.894983189399433,
+          "support": 37000.0
+        },
+        "malicioso": {
+          "precision": 0.929634143537149,
+          "recall": 0.8917982881849467,
+          "f1-score": 0.9103232416487463,
+          "support": 45332.0
+        },
+        "accuracy": 0.9032575426322693,
+        "macro avg": {
+          "precision": 0.9016815330892078,
+          "recall": 0.904547792741122,
+          "f1-score": 0.9026532155240896,
+          "support": 82332.0
+        },
+        "weighted avg": {
+          "precision": 0.9045103378097569,
+          "recall": 0.9032575426322693,
+          "f1-score": 0.9034294223169606,
+          "support": 82332.0
+        }
+      }
+    }
+  },
+  "differences": [
+    {
+      "metric": "accuracy",
+      "label": "Accuracy",
+      "centralized": 0.9061725695962688,
+      "federated": 0.9032575426322693,
+      "difference": -0.0029150269639994786,
+      "difference_percentage_points": -0.29150269639994786,
+      "preferred_direction": "higher"
+    },
+    {
+      "metric": "precision",
+      "label": "Precision",
+      "centralized": 0.9100106844595626,
+      "federated": 0.929634143537149,
+      "difference": 0.019623459077586447,
+      "difference_percentage_points": 1.9623459077586447,
+      "preferred_direction": "higher"
+    },
+    {
+      "metric": "recall",
+      "label": "Recall",
+      "centralized": 0.9206300185299567,
+      "federated": 0.8917982881849467,
+      "difference": -0.028831730345010076,
+      "difference_percentage_points": -2.8831730345010076,
+      "preferred_direction": "higher"
+    },
+    {
+      "metric": "f1_score",
+      "label": "F1-score",
+      "centralized": 0.9152895507330606,
+      "federated": 0.9103232416487463,
+      "difference": -0.00496630908431428,
+      "difference_percentage_points": -0.496630908431428,
+      "preferred_direction": "higher"
+    },
+    {
+      "metric": "false_positive_rate",
+      "label": "FPR",
+      "centralized": 0.11154054054054054,
+      "federated": 0.0827027027027027,
+      "difference": -0.028837837837837832,
+      "difference_percentage_points": -2.883783783783783,
+      "preferred_direction": "lower"
+    },
+    {
+      "metric": "false_negative_rate",
+      "label": "FNR",
+      "centralized": 0.07936998147004323,
+      "federated": 0.10820171181505338,
+      "difference": 0.028831730345010145,
+      "difference_percentage_points": 2.8831730345010147,
+      "preferred_direction": "lower"
+    },
+    {
+      "metric": "specificity",
+      "label": "Especificidad",
+      "centralized": 0.8884594594594595,
+      "federated": 0.9172972972972973,
+      "difference": 0.028837837837837776,
+      "difference_percentage_points": 2.8837837837837776,
+      "preferred_direction": "higher"
+    },
+    {
+      "metric": "roc_auc",
+      "label": "ROC-AUC",
+      "centralized": 0.9762464120566344,
+      "federated": 0.9732939883764469,
+      "difference": -0.0029524236801875547,
+      "difference_percentage_points": null,
+      "preferred_direction": "higher"
+    },
+    {
+      "metric": "average_precision",
+      "label": "Average Precision (AP)",
+      "centralized": 0.9826525523103011,
+      "federated": 0.9805319745602489,
+      "difference": -0.002120577750052255,
+      "difference_percentage_points": null,
+      "preferred_direction": "higher"
+    }
+  ]
+}
